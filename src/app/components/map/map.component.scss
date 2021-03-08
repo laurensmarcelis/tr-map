@@ -1,0 +1,43 @@
+@import "../../../../node_modules/ol/ol.css";
+
+.map-container {
+    width: inherit;
+    height: inherit;
+    z-index: 1;
+  }
+:host {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+
+.location {
+    color: white;
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100px;
+    min-height: 36px;
+    line-height: 36px;
+    background: rgba(0, 0, 0, 0.377)
+}
+
+.popup {
+    position: relative;
+    background: white;
+    padding: 10px;
+    border-radius: 3px;
+    &:after {
+        z-index: -1;
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        content: '';
+        width: 0;
+        height: 0;
+        border-top: solid 5px white;
+        border-left: solid 5px transparent;
+        border-right: solid 5px transparent;
+    }
+}
