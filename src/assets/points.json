@@ -123,6 +123,14 @@
 },
 {
     "name": "mushroom",
+    "pos": [842.537219722318,647.466796875],
+    "level": "1",
+    "color": "#2980b9",
+    "drops": "blue mushroom"
+},
+
+{
+    "name": "mushroom",
     "pos": [335.16919436444823,322.07991604499375],
     "level": "1",
     "color": "#f1c40f",
@@ -268,13 +276,13 @@
     "name": "chicken",
     "pos": [1045.7239837398342,756.2845528455285],
     "level": "1",
-    "drops": "featers (5-15), raw chicken"
+    "drops": "feathers (5-15), raw chicken"
 },
 {
     "name": "chicken",
     "pos": [888.1666444803348,431.93983739837404],
     "level": "1",
-    "drops": "featers (5-15), raw chicken"
+    "drops": "feathers (5-15), raw chicken"
 },
 {
     "name": "cow",
