@@ -10,7 +10,7 @@ import {
   ViewChild,
   ElementRef,
 } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { View, Feature, Map, Overlay } from "ol";
 import { createStringXY } from "ol/coordinate";
 import ImageLayer from "ol/layer/Image";
@@ -53,7 +53,7 @@ export class MapComponent implements OnInit, AfterViewInit {
     private zone: NgZone,
     private cd: ChangeDetectorRef,
     private http: HttpClient
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.popupOverlay = new Overlay({
@@ -84,7 +84,7 @@ export class MapComponent implements OnInit, AfterViewInit {
       image: new Icon({
         src: `./assets/icons/${src.name}.svg`,
         color: src.color ? src.color : "black",
-        scale: 0.2,
+        scale: 0.3,
       }),
     });
     const circle = new Style({
@@ -92,6 +92,7 @@ export class MapComponent implements OnInit, AfterViewInit {
         fill: new Fill({
           color: `rgba(255,255,255,${opacity})`,
         }),
+        
         stroke: new Stroke({
           color: "#000",
           width: 1.25,
@@ -99,7 +100,7 @@ export class MapComponent implements OnInit, AfterViewInit {
         radius: radius,
       }),
     });
-    return [circle, icon];
+    return [circle,icon];
   }
 
   ngAfterViewInit(): void {
