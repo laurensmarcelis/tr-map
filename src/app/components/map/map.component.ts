@@ -73,9 +73,7 @@ export class MapComponent implements OnInit, AfterViewInit {
         feat.set("style", this.createStyle(point));
         this.features.push(feat);
       });
-      setTimeout(() => {
-        this.initMap();
-      }, 2000);
+      this.initMap();
     });
   }
 
