@@ -1,2 +1,7 @@
 <div class="map-container" id="map"><div class="popup" #popup></div></div>
 <div class="location" #location></div>
+<form [formGroup]="form">
+<app-filters *ngIf="filters" formControlName="filters" [filters]="filters"></app-filters>
+</form>
+
+{{form.value | json}}

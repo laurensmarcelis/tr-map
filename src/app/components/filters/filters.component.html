@@ -1,0 +1,13 @@
+<div class="grid" [ngClass]="{'open': open}">
+  <div *ngFor="let option of form.controls; let i = index">
+    <label class="container" [for]="filters[i] ">
+        {{ filters[i] }}
+      <input type="checkbox" [formControl]="option" [id]="filters[i]" />
+      <span class="checkmark">  </span>
+    </label>
+  </div>
+  <button (click)="clear()">clear filters</button>
+  <div class="flip" (click)="open = !open">
+     <div>filter</div>
+  </div>
+</div>

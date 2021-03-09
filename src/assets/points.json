@@ -352,14 +352,14 @@
 {
     "name": "fishing spot",
     "pos": [250.2756097560975,29.627642276422762],
-    "level": "1",
+    "level": "50",
     "drops": "raw yabby"
 },
 
 {
     "name": "fishing spot",
     "pos": [230.00406504065035,353.97235772357726],
-    "level": "1",
+    "level": "50",
     "drops": "raw yabby"
 },
 

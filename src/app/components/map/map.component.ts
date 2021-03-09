@@ -30,24 +30,32 @@ import Select from "ol/interaction/Select";
 import { Style, Fill, Circle, Stroke } from "ol/style";
 import OverlayPositioning from "ol/OverlayPositioning";
 import { pointerMove } from "ol/events/condition";
+import { FormControl, FormGroup } from '@angular/forms';
 
 @Component({
   selector: "app-map",
   templateUrl: "./map.component.html",
   styleUrls: ["./map.component.scss"],
 })
-export class MapComponent implements OnInit, AfterViewInit {
+export class MapComponent implements OnInit {
   @ViewChild("location", { static: true }) location: ElementRef;
   @ViewChild("popup", { static: true }) popup: ElementRef;
   view: View;
   center = [0, 0];
   zoom = 3;
+  filters: string[];
   fullImagePath = "./assets/tr-map.png";
   features: Feature[] = [];
   projection: Projection;
   extent: Extent = [0, 0, 1679, 959];
   Map: Map;
+  pointsLayer: VectorLayer;
+  filterLayer: VectorLayer;
   popupOverlay: Overlay;
+
+  form = new FormGroup({
+    filters: new FormControl(),
+  });
   @Output() mapReady = new EventEmitter<Map>();
   constructor(
     private zone: NgZone,
@@ -56,13 +64,19 @@ export class MapComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
+    const preFilter = []
     this.popupOverlay = new Overlay({
       element: this.popup.nativeElement,
       positioning: OverlayPositioning.BOTTOM_CENTER,
       offset: [0, -25],
     });
+
+    this.form.valueChanges.subscribe(form => {
+      this.setFilters(form.filters)
+    })
     this.http.get("./assets/points-new.json").subscribe((points: TRFeature[]) => {
       points.forEach((point: TRFeature) => {
+        preFilter.push(point.name)
         point.pos.forEach(position => {
           const stylePoint  = {
             pos: position,
@@ -81,6 +95,8 @@ export class MapComponent implements OnInit, AfterViewInit {
           this.features.push(feat);
         })
       });
+
+      this.filters = [...new Set(preFilter)];
       this.initMap();
     });
   }
@@ -109,15 +125,25 @@ export class MapComponent implements OnInit, AfterViewInit {
     return [circle,icon];
   }
 
-  ngAfterViewInit(): void {
-    //setTimeout(()=>this.mapReady.emit(this.Map));
-  }
-
   private initMap(): void {
     this.projection = new Projection({
       code: "tr-map",
       units: "pixels",
     });
+    this.pointsLayer = new VectorLayer({
+      style: (feat) => {
+        return feat.get("style");
+      },
+      source: new VectorSource({ features: this.features }),
+    }),
+
+    this.filterLayer = new VectorLayer({
+      visible: false,
+      style: (feat) => {
+        return feat.get("style");
+      },
+      source: new VectorSource({ features: [] }),
+    }),
     this.projection.setExtent(this.extent);
     this.view = new View({
       center: getCenter(this.extent),
@@ -136,12 +162,8 @@ export class MapComponent implements OnInit, AfterViewInit {
             imageExtent: this.extent,
           }),
         }),
-        new VectorLayer({
-          style: (feat) => {
-            return feat.get("style");
-          },
-          source: new VectorSource({ features: this.features }),
-        }),
+        this.pointsLayer,
+        this.filterLayer,
       ],
       target: "map",
       view: this.view,
@@ -184,7 +206,19 @@ export class MapComponent implements OnInit, AfterViewInit {
 
     this.Map.addInteraction(this.selected_feature);
   }
-
+  setFilters(filters) {
+    if(filters.length == 0) {
+      this.filterLayer.setVisible(false);
+      this.pointsLayer.setVisible(true);
+      return
+    }
+    const test = this.features.filter(feature => {
+      return filters.includes(feature.get('name'))
+    })
+    this.filterLayer.setSource(new VectorSource({features: test}))
+    this.filterLayer.setVisible(true);
+    this.pointsLayer.setVisible(false);
+  }
   selected_feature = new Select({
     condition: pointerMove,
     style: (feat) => {
@@ -195,6 +229,7 @@ export class MapComponent implements OnInit, AfterViewInit {
       return this.createStyle({ pos: coord, name, color }, 20, 1);
     },
   });
+  
 }
 
 export interface TRFeature {
