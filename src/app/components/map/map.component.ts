@@ -52,7 +52,7 @@ export class MapComponent implements OnInit {
   pointsLayer: VectorLayer;
   filterLayer: VectorLayer;
   popupOverlay: Overlay;
-
+  activeFeature;
   form = new FormGroup({
     filters: new FormControl(),
   });
@@ -90,6 +90,7 @@ export class MapComponent implements OnInit {
             level: point.level,
             drops: point.drops,
             color: point.color,
+            info: point.info,
           });
           feat.set("style", this.createStyle(stylePoint));
           this.features.push(feat);
@@ -186,16 +187,9 @@ export class MapComponent implements OnInit {
       this.Map.forEachFeatureAtPixel(e.pixel, (f: Feature) => {
         const point: Point = <Point>f.getGeometry();
         const coord = point.getCoordinates();
-        let message = `
-        <b>${f.get("description")}</b><br/>
-        <b>level:</b> ${f.get("level")}<br/>`;
-        if (f.get("drops")) {
-          message = message + `<b>drops:</b> ${f.get("drops")}<br/>`;
-        }
+        
+        this.activeFeature = {...f.getProperties()};
 
-        this.popup.nativeElement.innerHTML = message;
-
-        this.popupOverlay.getElement;
         this.popupOverlay.setPosition(coord);
       });
     });
@@ -206,6 +200,8 @@ export class MapComponent implements OnInit {
 
     this.Map.addInteraction(this.selected_feature);
   }
+
+
   setFilters(filters) {
     if(filters.length == 0) {
       this.filterLayer.setVisible(false);
@@ -237,11 +233,16 @@ export interface TRFeature {
   name: string;
   icon?: string;
   level?: string;
-  drops?: string;
+  drops?: Drop[];
   color?: string;
   description: string;
+  info: string
 }
 
+export interface Drop {
+  name: string;
+  amount: string;
+}
 export interface TRStyle {
   pos: number[];
   name: string;

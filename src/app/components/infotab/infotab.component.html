@@ -1,0 +1,16 @@
+
+<div class="grid" [ngClass]="{'open': open}">
+<table>
+    <tr>
+        <th> food item</th>
+        <th> heal amount</th>
+    </tr>
+    <tr *ngFor="let item of list">
+        <td>{{item.name}}</td>
+        <td>{{item.amount}}</td>
+    </tr>
+</table>
+<div class="flip" (click)="open = !open">
+    <div>food</div>
+ </div>
+</div>

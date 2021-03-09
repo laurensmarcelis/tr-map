@@ -7,12 +7,14 @@ import { MapComponent } from './components/map/map.component';
 import { HttpClientModule } from '@angular/common/http';
 import { FiltersComponent } from './components/filters/filters.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { InfotabComponent } from './components/infotab/infotab.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     MapComponent,
     FiltersComponent,
+    InfotabComponent,
     
   ],
   imports: [

@@ -6,7 +6,12 @@
         [1394.2386178861784,887.2699186991871]
     ],
     "level": "15",
-    "drops": "5 coins"
+    "drops": [
+        {
+            "amount": 5,
+            "name": "coins"
+        } 
+    ]
 },
 {
     "name": "deer",
@@ -19,7 +24,12 @@
         [1229.3935790949113,367.14574018659573]
     ],
     "level": "5",
-    "drops": "deerhide"
+    "drops": [
+        {
+            "amount": 1,
+            "name": "deerhide"
+        } 
+    ]
 },
 {
     "name": "fox",
@@ -29,7 +39,12 @@
         [1210.3010401011252,760.9626016260165]
     ],
     "level": "11",
-    "drops": "5 coins"
+    "drops": [
+        {
+            "amount": 5,
+            "name": "coins"
+        } 
+    ]
 },
 {
     "name": "racoon",
@@ -40,7 +55,20 @@
         [986.9854234573642,379.48933263694704]
     ],
     "level": "6",
-    "drops": "apple, fish spear, yabby spear"
+    "drops": [
+        {
+            "amount": 1,
+            "name": "apple"
+        },
+        {
+            "amount": 1,
+            "name": "fish spear"
+        },
+        {
+            "amount": 1,
+            "name": "yabby spear"
+        }  
+    ]
 },
 {
     "name": "mushroom",
@@ -53,7 +81,12 @@
     ],
     "level": "1",
     "color": "#c0392b",
-    "drops": "red mushroom"
+    "drops": [
+        {
+            "amount": 1,
+            "name": "red mushroom"
+        } 
+    ]
 },
 {
     "name": "mushroom",
@@ -67,7 +100,12 @@
     ],
     "level": "1",
     "color": "#2980b9",
-    "drops": "blue mushroom"
+    "drops": [
+        {
+            "amount": 1,
+            "name": "blue mushroom"
+        } 
+    ]
 },
 {
     "name": "mushroom",
@@ -79,7 +117,12 @@
     ],
     "level": "1",
     "color": "#f1c40f",
-    "drops": "yellow mushroom"
+    "drops": [
+        {
+            "amount": 1,
+            "name": "yellow mushroom"
+        } 
+    ]
 },
 {
     "name": "mushroom",
@@ -91,7 +134,12 @@
     ],
     "level": "1",
     "color": "#9b59b6",
-    "drops": "purple mushroom"
+    "drops": [
+        {
+            "amount": 1,
+            "name": "purple mushroom"
+        } 
+    ]
 },
 {
     "name": "mushroom",
@@ -105,7 +153,12 @@
     ],
     "level": "1",
     "color": "#cd6133",
-    "drops": "brown mushroom"
+    "drops":[
+        {
+            "amount": 1,
+            "name": "brown mushroom"
+        } 
+    ]
 },
 {
     "name": "ore",
@@ -116,7 +169,16 @@
     ],
     "level": "20",
     "color": "#2c3e50",
-    "drops": "coal, sapphire"
+    "drops": [
+        {
+            "amount": 1,
+            "name": "coal"
+        }, 
+        {
+            "amount": 1,
+            "name": "sapphire"
+        } 
+    ]
 },
 {
     "name": "ore",
@@ -127,7 +189,16 @@
     ],
     "level": "10",
     "color": "#e74c3c",
-    "drops": "iron ore, ruby"
+    "drops": [
+        {
+            "amount": 1,
+            "name": "iron ore"
+        },
+        {
+            "amount": 1,
+            "name": "ruby"
+        } 
+    ]
 },
 {
     "name": "ore",
@@ -137,7 +208,16 @@
     ],
     "level": "1",
     "color": "#e67e22",
-    "drops": "copper ore, emerald"
+    "drops": [
+        {
+            "amount": 1,
+            "name": "copper ore"
+        },
+        {
+            "amount": 1,
+            "name": "emerald"
+        } 
+    ]
 },
 
 {
@@ -151,7 +231,12 @@
         [372.86463414634255,50.67886178861784]
     ],
     "level": "1",
-    "drops": "5 coins"
+    "drops": [
+        {
+            "amount": 5,
+            "name": "coins"
+        } 
+    ]
 },
 {
     "name": "wolf",
@@ -162,7 +247,12 @@
         [522.574327882568,341.37376496195486]
     ],
     "level": "13",
-    "drops": "wolf hide"
+    "drops": [
+        {
+            "amount": 1,
+            "name": "wolf hide"
+        } 
+    ]
 },
 {
     "name": "bear",
@@ -171,7 +261,12 @@
         [433.67926829268447,723.5382113821139]
     ],
     "level": "31",
-    "drops": "bear hide"
+    "drops": [
+        {
+            "amount": 1,
+            "name": "bear hide"
+        } 
+    ]
 },
 
 {
@@ -182,7 +277,24 @@
         [888.1666444803348,431.93983739837404]
     ],
     "level": "1",
-    "drops": "feathers (5-15), raw chicken"
+    "drops": [
+        {
+            "amount": 1,
+            "name": "raw chicken"
+        },
+        {
+            "amount": 5,
+            "name": "feathers"
+        }, 
+        {
+            "amount": 10,
+            "name": "feathers"
+        }, 
+        {
+            "amount": 13,
+            "name": "feathers"
+        } 
+    ]
 },
 {
     "name": "cow",
@@ -191,7 +303,16 @@
         [975.5532520325204,789.8105691056911]
     ],
     "level": "3",
-    "drops": "cowhide, raw steak"
+    "drops": [
+        {
+            "amount": 1,
+            "name": "cow hide"
+        } ,
+        {
+            "amount": 1,
+            "name": "raw steak"
+        } 
+    ]
 },
 {
     "name": "fishing spot",
@@ -202,7 +323,12 @@
         [939.6882113821139,626.858536585366]
     ],
     "level": "20",
-    "drops": "raw prawn"
+    "drops": [
+        {
+        "amount": 1,
+        "name": "raw prawn"
+        } 
+    ]
 },
 {
     "name": "fishing spot",
@@ -211,7 +337,12 @@
         [902.2638211382114,731.3349593495936]
     ],
     "level": "8",
-    "drops": "raw perch"
+    "drops": [
+        {
+        "amount": 1,
+        "name": "raw perch"
+        } 
+    ]
 },
 {
     "name": "fishing spot",
@@ -221,7 +352,12 @@
         [1209.4586752608802,663.8387505319079]
     ],
     "level": "1",
-    "drops": "raw chub"
+    "drops": [
+        {
+        "amount": 1,
+        "name": "raw chubs"
+        } 
+    ]
 },
 
 {
@@ -232,7 +368,12 @@
         [250.2756097560975,29.627642276422762]
     ],
     "level": "50",
-    "drops": "raw yabby"
+    "drops": [
+        {
+        "amount": 1,
+        "name": "raw yabby"
+        } 
+    ]
 },
 
 {
@@ -243,7 +384,12 @@
         [1481.7824978207136,592.6730434963599]
     ],
     "level": "40",
-    "drops": "raw hagnesh"
+    "drops": [
+        {
+        "amount": 1,
+        "name": "raw hagnesh"
+        } 
+    ]
 },
 
 {
@@ -255,7 +401,7 @@
         [1093.086354188616,534.0451809182114]
     ],
     "level": "1",
-    "drops": "fills empty vessel"
+    "info": "fills empty vessels like a bucket or vials"
 },
 {
     "name": "anvil",
@@ -315,7 +461,12 @@
         [1044.583790281895,572.6139166253224]
     ],
     "level": "10",
-    "drops": "oak logs"
+    "drops": [
+        {
+        "amount": 1,
+        "name": "oak log"
+        } 
+    ]
 },
 {
     "name": "tree",
@@ -326,7 +477,12 @@
         [552.6428978893325,3.831146605818617]
     ],
     "level": "30",
-    "drops": "willow logs"
+    "drops": [
+        {
+        "amount": 1,
+        "name": "willow log"
+        } 
+    ]
 },
 {
     "name": "tree",
@@ -335,6 +491,11 @@
         [434.83513976041087,772.9338277239017]
     ],
     "level": "40",
-    "drops": "cherry logs"
+    "drops": [
+        {
+        "amount": 1,
+        "name": "cherry log"
+        } 
+    ]
 }
 ]

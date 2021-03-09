@@ -1,0 +1,49 @@
+.grid {
+  right: -220px;
+  width: 200px;
+  bottom: 0;
+  top: 0;
+  z-index: 99999;
+  position: absolute;
+  transition: all 0.2s ease;
+  background: white;
+  padding: 50px 10px;
+}
+
+.grid.open {
+  right: 0;
+}
+
+.flip {
+  position: absolute;
+  top: 15%;
+  right: calc(100% - 25px);
+  transform: rotate(-90deg);
+  border-bottom: 40px solid white;
+  border-left: 25px solid transparent;
+  border-right: 25px solid transparent;
+  height: 0;
+  width: 40px;
+
+  > div {
+    margin-top: 15px;
+    transform: rotate(90deg);
+  }
+}
+
+table {
+  tr {
+      th:first-child {
+        text-align: left;
+      }
+      &:nth-child(even) {
+          background: #f2f2f2;
+      }
+    td {
+        padding: 10px;
+      &:nth-child(even) {
+        text-align: right;
+      }
+    }
+  }
+}

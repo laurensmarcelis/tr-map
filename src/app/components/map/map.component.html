@@ -1,7 +1,37 @@
-<div class="map-container" id="map"><div class="popup" #popup></div></div>
+<div class="map-container" id="map">
+  <div class="popup" #popup>
+    <div class="popup-inner" *ngIf="activeFeature">
+      <div class="header">
+        <div class="icon">
+          <img [src]="'./assets/icons/' + activeFeature.name + '.svg'" [ngClass]="{color: !!activeFeature.color}" />
+        </div>
+        <div class="name">
+          {{ activeFeature.description }}
+        </div>
+      </div>
+      <div class="body">
+        <div class="drops" *ngIf="activeFeature.drops">
+        <h5>Drops:</h5>
+          <ul>
+            <li *ngFor="let drop of activeFeature.drops">
+              {{ drop.amount }} {{ drop.name }}
+            </li>
+          </ul>
+        </div>
+        <div class="info" *ngIf="activeFeature.info">
+          <p>{{activeFeature.info}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="location" #location></div>
 <form [formGroup]="form">
-<app-filters *ngIf="filters" formControlName="filters" [filters]="filters"></app-filters>
+  <app-filters
+    *ngIf="filters"
+    formControlName="filters"
+    [filters]="filters"
+  ></app-filters>
 </form>
 
-{{form.value | json}}
+<app-infotab></app-infotab>

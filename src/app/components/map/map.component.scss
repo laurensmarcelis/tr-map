@@ -9,6 +9,13 @@
     width: 100%;
     height: 100%;
     position: absolute;
+    overflow: hidden;
+}
+
+.color {
+    fill: black;
+    color: black;
+    filter: invert(1);
 }
 
 .location {
@@ -27,6 +34,7 @@
     position: relative;
     background: white;
     padding: 10px;
+    min-width: 150px;
     border-radius: 3px;
     &:after {
         z-index: -1;
@@ -41,6 +49,39 @@
         border-left: solid 5px transparent;
         border-right: solid 5px transparent;
     }
+
+    .popup-inner {
+        .header {
+            margin-bottom: 5px;
+            padding-bottom: 5px;
+            
+            width: 100%;
+            display: flex;
+            align-items: center;
+            align-content: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #f2f2f2;
+            img {
+                width: 30px;
+                height: 30px;
+            }
+            name {
+                font-size: 18px;
+            }
+        }
+    }
+    .drops {
+        ul li {
+            padding: 5px;
+            background-color:#f2f2f2;
+            &:nth-child(even) {
+                background-color:#d8d8d8;
+            }
+        }
+        h5{margin-bottom: 5px;}
+
+    }
+    .info {max-width: 200px;}
 }
 
 .filter {
@@ -48,3 +89,4 @@
     top: 50px;
     left: 50px;
 }
+
