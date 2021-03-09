@@ -185,6 +185,27 @@
     "color": "#cd6133",
     "drops": "brown mushroom"
 },
+{
+    "name": "mushroom",
+    "pos": [1014.5064554224996,512.7026225333917],
+    "level": "1",
+    "color": "#cd6133",
+    "drops": "brown mushroom"
+},
+{
+    "name": "mushroom",
+    "pos": [1035.1063892893746,512.2876055507257],
+    "level": "1",
+    "color": "#cd6133",
+    "drops": "brown mushroom"
+},
+{
+    "name": "mushroom",
+    "pos": [1005.7910987865152,479.01078930423535],
+    "level": "1",
+    "color": "#cd6133",
+    "drops": "brown mushroom"
+},
 
 {
     "name": "ore",
