@@ -61,23 +61,31 @@ export class MapComponent implements OnInit, AfterViewInit {
       positioning: OverlayPositioning.BOTTOM_CENTER,
       offset: [0, -25],
     });
-    this.http.get("./assets/points.json").subscribe((points: point[]) => {
-      points.forEach((point) => {
-        const feat = new Feature({
-          geometry: new Point(point.pos),
-          name: point.name,
-          level: point.level,
-          drops: point.drops,
-          color: point.color,
-        });
-        feat.set("style", this.createStyle(point));
-        this.features.push(feat);
+    this.http.get("./assets/points-new.json").subscribe((points: TRFeature[]) => {
+      points.forEach((point: TRFeature) => {
+        point.pos.forEach(position => {
+          const stylePoint  = {
+            pos: position,
+            name: point.name,
+            color: point.color,
+          }
+          const feat = new Feature({
+            geometry: new Point(position),
+            name: point.name,
+            description: point.description,
+            level: point.level,
+            drops: point.drops,
+            color: point.color,
+          });
+          feat.set("style", this.createStyle(stylePoint));
+          this.features.push(feat);
+        })
       });
       this.initMap();
     });
   }
 
-  private createStyle(src: point, radius = 20, opacity = 0.7) {
+  private createStyle(src: TRStyle, radius = 20, opacity = 0.7) {
     const icon = new Style({
       image: new Icon({
         src: `./assets/icons/${src.name}.svg`,
@@ -157,7 +165,7 @@ export class MapComponent implements OnInit, AfterViewInit {
         const point: Point = <Point>f.getGeometry();
         const coord = point.getCoordinates();
         let message = `
-        <b>${f.get("name")}</b><br/>
+        <b>${f.get("description")}</b><br/>
         <b>level:</b> ${f.get("level")}<br/>`;
         if (f.get("drops")) {
           message = message + `<b>drops:</b> ${f.get("drops")}<br/>`;
@@ -189,11 +197,18 @@ export class MapComponent implements OnInit, AfterViewInit {
   });
 }
 
-export interface point {
-  pos: number[];
+export interface TRFeature {
+  pos: [number[]];
   name: string;
   icon?: string;
   level?: string;
   drops?: string;
+  color?: string;
+  description: string;
+}
+
+export interface TRStyle {
+  pos: number[];
+  name: string;
   color?: string;
 }
