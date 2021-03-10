@@ -88,7 +88,7 @@ export class MapComponent implements OnInit {
             name: point.name,
             description: point.description,
             level: point.level,
-            drops: point.drops,
+            drops: point.drops ? this.createDrops(point.drops): null,
             color: point.color,
             info: point.info,
           });
@@ -225,6 +225,23 @@ export class MapComponent implements OnInit {
       return this.createStyle({ pos: coord, name, color }, 20, 1);
     },
   });
+
+  createDrops(drops: Drop[]) {
+    const totalweight = drops ? drops.reduce((a, b):any => a +( b.weight || 0), 0) : 0;
+    
+    return drops.map(drop => {
+      const numbers = this.reduce(drop.weight  ,totalweight)
+      const chance = (isNaN(numbers[0]))? "always" :`${numbers[0]} / ${numbers[1]}`
+      return {...drop,chance};
+    })
+  }
+  private reduce(numerator: number,denominator:number){
+    let gcd:any = function gcd(a,b){
+      return b ? gcd(b, a%b) : a;
+    };
+    gcd = gcd(numerator,denominator);
+    return [numerator/gcd, denominator/gcd];
+  }
   
 }
 
@@ -242,6 +259,8 @@ export interface TRFeature {
 export interface Drop {
   name: string;
   amount: string;
+  weight: number;
+  chance?: string;
 }
 export interface TRStyle {
   pos: number[];

@@ -74,6 +74,11 @@
         ul li {
             padding: 5px;
             background-color:#f2f2f2;
+            display: flex;
+            justify-content: space-between;
+            > div:first-child{
+                margin-right: 5px;
+            }
             &:nth-child(even) {
                 background-color:#d8d8d8;
             }

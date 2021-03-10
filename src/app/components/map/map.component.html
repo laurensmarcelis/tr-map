@@ -2,20 +2,21 @@
   <div class="popup" #popup>
     <div class="popup-inner" *ngIf="activeFeature">
       <div class="header">
-        <div class="icon">
-          <img [src]="'./assets/icons/' + activeFeature.name + '.svg'" [ngClass]="{color: !!activeFeature.color}" />
-        </div>
+        
         <div class="name">
           {{ activeFeature.description }}
+        </div>
+        <div class="level">
+          level:{{activeFeature.level}}
         </div>
       </div>
       <div class="body">
         <div class="drops" *ngIf="activeFeature.drops">
-        <div class="level">level {{activeFeature.level}}</div>
         <h5>Drops:</h5>
           <ul>
             <li *ngFor="let drop of activeFeature.drops">
-              {{ drop.amount }} {{ drop.name }}
+              <div>{{ drop.amount }} {{ drop.name }}</div>
+              <div>  {{drop.chance}}</div>
             </li>
           </ul>
         </div>
