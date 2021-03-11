@@ -29,7 +29,12 @@
     line-height: 36px;
     background: rgba(0, 0, 0, 0.377)
 }
-
+.magic {
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    z-index: 99999999;
+}
 .popup {
     position: relative;
     background: white;

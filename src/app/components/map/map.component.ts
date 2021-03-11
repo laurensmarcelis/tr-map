@@ -41,16 +41,19 @@ export class MapComponent implements OnInit {
   @ViewChild("location", { static: true }) location: ElementRef;
   @ViewChild("popup", { static: true }) popup: ElementRef;
   view: View;
-  center = [0, 0];
   zoom = 3;
+  x = 200;
+  y = 500;
+  s = 1;
   filters: string[];
   fullImagePath = "./assets/tr-map.png";
   features: Feature[] = [];
   projection: Projection;
-  extent: Extent = [0, 0, 1679, 959];
+  extent: Extent = [0, 0, 2048, 2048];
   Map: Map;
   pointsLayer: VectorLayer;
   filterLayer: VectorLayer;
+  mapLayer: ImageLayer;
   popupOverlay: Overlay;
   activeFeature;
   form = new FormGroup({
@@ -74,17 +77,17 @@ export class MapComponent implements OnInit {
     this.form.valueChanges.subscribe(form => {
       this.setFilters(form.filters)
     })
-    this.http.get("./assets/points-new.json").subscribe((points: TRFeature[]) => {
+    this.http.get("./assets/points.json").subscribe((points: TRFeature[]) => {
       points.forEach((point: TRFeature) => {
         preFilter.push(point.name)
         point.pos.forEach(position => {
           const stylePoint  = {
-            pos: position,
+            pos: [(position[0]  ) + 1024, position[1]  ],
             name: point.name,
             color: point.color,
           }
           const feat = new Feature({
-            geometry: new Point(position),
+            geometry: new Point([(position[0]  ) + 1024, position[1]  ]),
             name: point.name,
             description: point.description,
             level: point.level,
@@ -102,14 +105,16 @@ export class MapComponent implements OnInit {
     });
   }
 
+  
+
   private createStyle(src: TRStyle, radius = 20, opacity = 0.7) {
-    const icon = new Style({
-      image: new Icon({
-        src: `./assets/icons/${src.name}.svg`,
-        color: src.color ? src.color : "black",
-        scale: 0.3,
-      }),
-    });
+    // const icon = new Style({
+    //   image: new Icon({
+    //     src: `./assets/icons/${src.name}.svg`,
+    //     color: src.color ? src.color : "black",
+    //     scale: 0.3,
+    //   }),
+    // });
     const circle = new Style({
       image: new Circle({
         fill: new Fill({
@@ -123,11 +128,12 @@ export class MapComponent implements OnInit {
         radius: radius,
       }),
     });
-    return [circle,icon];
+    return [circle];
   }
 
   private initMap(): void {
     this.projection = new Projection({
+
       code: "tr-map",
       units: "pixels",
     });
@@ -144,25 +150,28 @@ export class MapComponent implements OnInit {
         return feat.get("style");
       },
       source: new VectorSource({ features: [] }),
+    }), 
+
+    this.mapLayer = new ImageLayer({
+      source: new Static({
+        url: this.fullImagePath,
+        projection: this.projection,
+        imageExtent: [263, 660, 1169.66, 1177.8600000000001],
+      }),
     }),
+
     this.projection.setExtent(this.extent);
     this.view = new View({
       center: getCenter(this.extent),
       zoom: this.zoom,
-      maxZoom: 5,
+      maxZoom: 10,
       minZoom: 0,
       extent: this.extent,
       projection: this.projection,
     });
     this.Map = new Map({
       layers: [
-        new ImageLayer({
-          source: new Static({
-            url: this.fullImagePath,
-            projection: this.projection,
-            imageExtent: this.extent,
-          }),
-        }),
+        this.mapLayer,
         this.pointsLayer,
         this.filterLayer,
       ],
@@ -172,7 +181,7 @@ export class MapComponent implements OnInit {
       controls: DefaultControls().extend([
         new ScaleLine({}),
         new MousePosition({
-          coordinateFormat: createStringXY(1),
+          coordinateFormat:createStringXY(0),
           projection: this.projection,
           target: this.location.nativeElement,
         }),
@@ -180,6 +189,7 @@ export class MapComponent implements OnInit {
     });
     let selected = null;
     this.Map.on("pointermove", (e) => {
+
       const coord = e.coordinate;
       if (this.Map.getFeaturesAtPixel(e.pixel).length === 0) {
         this.popupOverlay.setPosition(undefined);
@@ -242,6 +252,26 @@ export class MapComponent implements OnInit {
     gcd = gcd(numerator,denominator);
     return [numerator/gcd, denominator/gcd];
   }
+
+  // slide(type, event) {
+  //   console.log(event)
+  //   switch(type) {
+  //     case 'x': this.x = parseInt(event.target.value);
+  //     break;
+  //     case 'y': this.y = parseInt(event.target.value);
+  //     break;
+  //     case 's': this.s = parseFloat(event.target.value);
+  //   }
+  //   console.log(type);
+  //   console.log(<number>this.x);
+  //   console.log(<number>this.y);
+  //   console.log([this.x,this.y , ((1679*this.s) + this.x),(( 959*this.s) + this.y)])
+  //   this.mapLayer.setSource(new Static({
+  //     url: this.fullImagePath,
+  //     projection: this.projection,
+  //     imageExtent: [this.x,this.y ,( (1679*this.s) + this.x),(( 959*this.s) + this.y)],
+  //   }),)
+  //  }
   
 }
 
