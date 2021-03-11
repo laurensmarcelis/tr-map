@@ -361,7 +361,8 @@
     "name": "fishing spot",
     "description": "perch",
     "pos": [
-        [902.2638211382114,731.3349593495936]
+        [902.2638211382114,731.3349593495936],
+        [1077.6337870867014,600.0483132064747]
     ],
     "level": "8",
     "drops": [
@@ -427,56 +428,177 @@
         [821.3344861461333,405.16822821065807],
         [1093.086354188616,534.0451809182114]
     ],
-    "level": "1",
     "info": "fills empty vessels like a bucket or vials"
 },
 {
     "name": "anvil",
     "description": "anvil",
     "pos": [[1081.1876580375292,689.4415426107314]],
-    "level": "1"
+    "info": "smith weapons and armor with ingots"
 },
 {
     "name": "furnace",
     "description": "furnace",
     "pos": [[1093.85953407879,683.6050189215355]],
-    "level": "1"
+    "info": "smelt ores and create jewelry"
 },
 {
     "name": "spinning wheel",
     "description": "spinning wheel",
     "pos": [[1108.4988834916535,535.0918814687609]],
-    "level": "1"
+    "info": "turn flax into string"
 },
 {
     "name": "workbench",
     "description": "workbench",
     "pos": [[1109.8428877047681,521.2983153968938]],
-    "level": "1"
+    "info": "create bows and arrow shafts"
 },
 {
     "name": "tanning rack",
     "description": "tanning rack",
     "pos": [[1102.013501537631,509.06890699728297]],
-    "level": "1"
+    "info": "tan hides into leather rolls for leather armor"
 },
 {
     "name": "bank",
     "description": "bank",
     "pos": [[1011.2374532503216,494.6060825102849]],
-    "level": "1"
+    "info": "withdraw and deposit items and currency"
 },
 {
     "name": "rare store",
     "description": "rare store",
     "pos": [[958.5374390871687,536.5159853853977]],
-    "level": "1"
+    "items": [
+        {
+            "name": "Titanite Arrow",
+            "price": 5000
+          },
+          {
+            "name": "Birch Logs",
+            "price": 1000
+          },
+          {
+            "name": "Potato",
+            "price": 100000
+          },
+          {
+            "name": "Cobalt Ore",
+            "price": 25000
+          },
+          {
+            "name": "Raw Prawn",
+            "price": 20
+          }
+    ]
 },
 {
-    "name": "general store",
+    "name": "store",
     "description": "general store",
     "pos": [[970.7480798786708,479.59961448382944]],
-    "level": "1"
+    "items": [
+        {
+            "name": "Flint",
+            "price": 5
+          },
+          {
+            "name": "Empty Pot",
+            "price": 5
+          },
+          {
+            "name": "Vial",
+            "price": 5
+          },
+          {
+            "name": "Empty Bowl",
+            "price": 5
+          },
+          {
+            "name": "Empty Bucket",
+            "price": 5
+          },
+          {
+            "name": "Empty Jug",
+            "price": 5
+          },
+          {
+            "name": "Copper Dagger",
+            "price": 50
+          },
+          {
+            "name": "Copper Pickaxe",
+            "price": 30
+          },
+          {
+            "name": "Needle",
+            "price": 5
+          },
+          {
+            "name": "Thread",
+            "price": 1
+          }
+    ]
+},
+
+{
+    "name": "store",
+    "description": "fishing store",
+    "pos": [
+        [342.0529195288088,28.555342180716195],
+        [1204.9991966102473,682.4014808281966]
+    ],
+    "items": [
+        {
+            "name": "Worms",
+            "price": 3
+          },
+          {
+            "name": "Fishing Rod",
+            "price": 5
+          },
+          {
+            "name": "Yabby Cage",
+            "price": 5
+          },
+          {
+            "name": "Spear",
+            "price": 15000
+          }
+    ]
+},
+{
+    "name": "store",
+    "description": "veg store",
+    "pos": [[988.162011489814,519.0543356812411]],
+    "items": [
+        {
+            "name": "Yellow Mushroom",
+            "price": 15
+          },
+          {
+            "name": "Garlic",
+            "price": 10
+          },
+          {
+            "name": "Potato",
+            "price": 100000
+          },
+          {
+            "name": "Tomato",
+            "price": 10
+          }
+    ]
+},
+{
+    "name": "campfire",
+    "description": "campfire",
+    "pos": [
+        [1197.186757242321,685.6748026164086],
+        [1069.4867971701906,590.7278582400131],
+        [336.5598179919732,12.144376606283288]
+    ],
+    "info": "permanent campfire to cook on"
 },
 {
     "name": "tree",

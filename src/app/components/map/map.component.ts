@@ -91,6 +91,7 @@ export class MapComponent implements OnInit {
             drops: point.drops ? this.createDrops(point.drops): null,
             color: point.color,
             info: point.info,
+            items: point.items
           });
           feat.set("style", this.createStyle(stylePoint));
           this.features.push(feat);
@@ -254,6 +255,7 @@ export interface TRFeature {
   color?: string;
   description: string;
   info: string
+  items: any[];
 }
 
 export interface Drop {
