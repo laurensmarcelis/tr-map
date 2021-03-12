@@ -446,8 +446,49 @@
     "name": "general store",
     "description": "Shopkeeper - General Store",
     "pos":[[-237.65,921.5]],
-    "info": "buy and sell items"
-
+    "info": "buy and sell items",
+    "items": [
+        {
+            "name": "Flint",
+            "price": 5
+          },
+          {
+            "name": "Empty Pot",
+            "price": 5
+          },
+          {
+            "name": "Vial",
+            "price": 5
+          },
+          {
+            "name": "Empty Bowl",
+            "price": 5
+          },
+          {
+            "name": "Empty Bucket",
+            "price": 5
+          },
+          {
+            "name": "Empty Jug",
+            "price": 5
+          },
+          {
+            "name": "Copper Dagger",
+            "price": 50
+          },
+          {
+            "name": "Copper Pickaxe",
+            "price": 30
+          },
+          {
+            "name": "Needle",
+            "price": 5
+          },
+          {
+            "name": "Thread",
+            "price": 1
+          }
+    ]
   },
   {
     "name": "tree",
@@ -503,8 +544,50 @@
   {
     "name": "npc",
     "description": "Fritz - Fishing Instructor",
-    "pos": [[-115.62,1026.16]]
+    "pos": [[-115.62,1026.16]],
+    "items": [
+        {
+            "name": "Worms",
+            "price": 3
+          },
+          {
+            "name": "Fishing Rod",
+            "price": 5
+          },
+          {
+            "name": "Yabby Cage",
+            "price": 5
+          },
+          {
+            "name": "Spear",
+            "price": 15000
+          }
+    ]
   },
+  {
+    "name": "general store",
+    "description": "Fishing Supplies - Fishing Store",
+    "pos": [[-570.4,675.6]],
+    "items": [
+        {
+            "name": "Worms",
+            "price": 3
+          },
+          {
+            "name": "Fishing Rod",
+            "price": 5
+          },
+          {
+            "name": "Yabby Cage",
+            "price": 5
+          },
+          {
+            "name": "Spear",
+            "price": 15000
+          }
+    ]
+  },
+  
   {
     "name": "npc",
     "description": "Gwen - Alchemy Instructor",
@@ -534,12 +617,52 @@
     "name": "rare store",
     "description": "Regina - Rare Store",
     "pos": [[-246.4,949.14]],  
-    "info": "sells items that are not otherwise available in fame"
+    "info": "sells items that are not otherwise available in game",
+    "items": [
+        {
+            "name": "Titanite Arrow",
+            "price": 5000
+          },
+          {
+            "name": "Birch Logs",
+            "price": 1000
+          },
+          {
+            "name": "Potato",
+            "price": 100000
+          },
+          {
+            "name": "Cobalt Ore",
+            "price": 25000
+          },
+          {
+            "name": "Raw Prawn",
+            "price": 20
+          }
+    ]
   },
   {
     "name": "npc",
     "description": "Rufus - Vegetable Farmer",
-    "pos": [[-230.15,941.3]]
+    "pos": [[-230.15,941.3]],
+    "items": [
+        {
+            "name": "Yellow Mushroom",
+            "price": 15
+          },
+          {
+            "name": "Garlic",
+            "price": 10
+          },
+          {
+            "name": "Potato",
+            "price": 100000
+          },
+          {
+            "name": "Tomato",
+            "price": 10
+          }
+    ]
   },
   {
     "name": "npc",

@@ -6,7 +6,7 @@
           {{ activeFeature.description }}
         </div>
         <div class="level" *ngIf="activeFeature.level">
-          level:{{activeFeature.level}}
+          level: {{activeFeature.level}}
         </div>
       </div>
       <div class="body">
@@ -16,6 +16,15 @@
             <li *ngFor="let drop of activeFeature.drops">
               <div>{{ drop.amount }} {{ drop.name }}</div>
               <div>  {{drop.chance}}</div>
+            </li>
+          </ul>
+        </div>
+        <div class="drops" *ngIf="activeFeature.items">
+        <h5>Items:</h5>
+          <ul>
+            <li *ngFor="let item of activeFeature.items">
+              <div>{{ item.name }}</div>
+              <div>  {{item.price}} coins</div>
             </li>
           </ul>
         </div>
