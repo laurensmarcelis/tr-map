@@ -10,7 +10,11 @@
         </div>
       </div>
       <div class="body">
+        <div class="info" *ngIf="activeFeature.info">
+          <p>{{activeFeature.info}}</p>
+        </div>
         <div class="drops" *ngIf="activeFeature.drops">
+          
         <h5>Drops:</h5>
           <ul>
             <li *ngFor="let drop of activeFeature.drops">
@@ -28,9 +32,7 @@
             </li>
           </ul>
         </div>
-        <div class="info" *ngIf="activeFeature.info">
-          <p>{{activeFeature.info}}</p>
-        </div>
+        
       </div>
     </div>
   </div>
