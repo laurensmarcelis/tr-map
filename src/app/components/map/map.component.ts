@@ -41,9 +41,9 @@ export class MapComponent implements OnInit {
   @ViewChild("location", { static: true }) location: ElementRef;
   @ViewChild("popup", { static: true }) popup: ElementRef;
   view: View;
-  zoom = 3;
-  x = 200;
-  y = 500;
+  zoom = 4;
+  x = 263;
+  y = 660;
   s = 1;
   filters: string[];
   fullImagePath = "./assets/tr-map.png";
@@ -77,7 +77,7 @@ export class MapComponent implements OnInit {
     this.form.valueChanges.subscribe(form => {
       this.setFilters(form.filters)
     })
-    this.http.get("./assets/points.json").subscribe((points: TRFeature[]) => {
+    this.http.get("./assets/points-new.json").subscribe((points: TRFeature[]) => {
       points.forEach((point: TRFeature) => {
         preFilter.push(point.name)
         point.pos.forEach(position => {
@@ -107,28 +107,28 @@ export class MapComponent implements OnInit {
 
   
 
-  private createStyle(src: TRStyle, radius = 20, opacity = 0.7) {
-    // const icon = new Style({
-    //   image: new Icon({
-    //     src: `./assets/icons/${src.name}.svg`,
-    //     color: src.color ? src.color : "black",
-    //     scale: 0.3,
-    //   }),
-    // });
+  private createStyle(src: TRStyle, radius = 20, opacity = 0.8) {
+    const icon = new Style({
+      image: new Icon({
+        src: `./assets/icons/${src.name}.svg`,
+        color: src.color,
+        scale: 0.3,
+      }),
+    });
     const circle = new Style({
       image: new Circle({
         fill: new Fill({
-          color: `rgba(255,255,255,${opacity})`,
+          color: `rgba(225,225,225,${opacity})`,
         }),
         
         stroke: new Stroke({
-          color: "#000",
-          width: 1.25,
+          color: "#333",
+          width: 2,
         }),
         radius: radius,
       }),
     });
-    return [circle];
+    return [circle,icon];
   }
 
   private initMap(): void {
@@ -156,15 +156,15 @@ export class MapComponent implements OnInit {
       source: new Static({
         url: this.fullImagePath,
         projection: this.projection,
-        imageExtent: [263, 660, 1169.66, 1177.8600000000001],
+        imageExtent: [260, 660, 1166.66, 1177.8600000000001],
       }),
     }),
 
     this.projection.setExtent(this.extent);
     this.view = new View({
-      center: getCenter(this.extent),
+      center: [683,950], //getCenter(this.extent),
       zoom: this.zoom,
-      maxZoom: 10,
+      maxZoom: 8,
       minZoom: 0,
       extent: this.extent,
       projection: this.projection,
@@ -225,6 +225,7 @@ export class MapComponent implements OnInit {
     this.filterLayer.setVisible(true);
     this.pointsLayer.setVisible(false);
   }
+
   selected_feature = new Select({
     condition: pointerMove,
     style: (feat) => {
@@ -253,25 +254,25 @@ export class MapComponent implements OnInit {
     return [numerator/gcd, denominator/gcd];
   }
 
-  // slide(type, event) {
-  //   console.log(event)
-  //   switch(type) {
-  //     case 'x': this.x = parseInt(event.target.value);
-  //     break;
-  //     case 'y': this.y = parseInt(event.target.value);
-  //     break;
-  //     case 's': this.s = parseFloat(event.target.value);
-  //   }
-  //   console.log(type);
-  //   console.log(<number>this.x);
-  //   console.log(<number>this.y);
-  //   console.log([this.x,this.y , ((1679*this.s) + this.x),(( 959*this.s) + this.y)])
-  //   this.mapLayer.setSource(new Static({
-  //     url: this.fullImagePath,
-  //     projection: this.projection,
-  //     imageExtent: [this.x,this.y ,( (1679*this.s) + this.x),(( 959*this.s) + this.y)],
-  //   }),)
-  //  }
+  slide(type, event) {
+    console.log(event)
+    switch(type) {
+      case 'x': this.x = parseInt(event.target.value);
+      break;
+      case 'y': this.y = parseInt(event.target.value);
+      break;
+      case 's': this.s = parseFloat(event.target.value);
+    }
+    console.log(type);
+    console.log(<number>this.x);
+    console.log(<number>this.y);
+    console.log([this.x,this.y , ((1679*this.s) + this.x),(( 959*this.s) + this.y)])
+    this.mapLayer.setSource(new Static({
+      url: this.fullImagePath,
+      projection: this.projection,
+      imageExtent: [this.x,this.y ,( (1679*this.s) + this.x),(( 959*this.s) + this.y)],
+    }),)
+   }
   
 }
 
