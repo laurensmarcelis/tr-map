@@ -25,6 +25,7 @@ import VectorLayer from "ol/layer/Vector";
 import Projection from "ol/proj/Projection";
 import { Extent, getCenter } from "ol/extent";
 import VectorSource from "ol/source/Vector";
+import Cluster from 'ol/source/Cluster';
 import Point from "ol/geom/Point";
 import Select from "ol/interaction/Select";
 import { Style, Fill, Circle, Stroke } from "ol/style";
@@ -45,6 +46,7 @@ export class MapComponent implements OnInit {
   x = 263;
   y = 660;
   s = 1;
+  clusterIgnore = ['npc','shop','workbench','anvil','bank','campfire']
   filters: string[];
   fullImagePath = "./assets/tr-map.png";
   features: Feature[] = [];
@@ -81,17 +83,17 @@ export class MapComponent implements OnInit {
       points.forEach((point: TRFeature) => {
         preFilter.push(point.name)
         point.pos.forEach(position => {
-          const stylePoint  = {
-            pos: [(position[0]  ) + 1024, position[1]  ],
+          const stylePoint = {
+            pos: [(position[0]) + 1024, position[1]],
             name: point.name,
             color: point.color,
           }
           const feat = new Feature({
-            geometry: new Point([(position[0]  ) + 1024, position[1]  ]),
+            geometry: new Point([(position[0]) + 1024, position[1]]),
             name: point.name,
             description: point.description,
             level: point.level,
-            drops: point.drops ? this.createDrops(point.drops): null,
+            drops: point.drops ? this.createDrops(point.drops) : null,
             color: point.color,
             info: point.info,
             items: point.items
@@ -106,7 +108,7 @@ export class MapComponent implements OnInit {
     });
   }
 
-  
+
 
   private createStyle(src: TRStyle, radius = 20, opacity = 0.8) {
     const icon = new Style({
@@ -121,7 +123,7 @@ export class MapComponent implements OnInit {
         fill: new Fill({
           color: `rgba(225,225,225,${opacity})`,
         }),
-        
+
         stroke: new Stroke({
           color: "#333",
           width: 2,
@@ -129,7 +131,7 @@ export class MapComponent implements OnInit {
         radius: radius,
       }),
     });
-    return [circle,icon];
+    return [circle, icon];
   }
 
   private initMap(): void {
@@ -138,32 +140,59 @@ export class MapComponent implements OnInit {
       code: "tr-map",
       units: "pixels",
     });
-    this.pointsLayer = new VectorLayer({
-      style: (feat) => {
-        return feat.get("style");
-      },
+
+    const clusterSource = new Cluster({
+      distance: 18,
       source: new VectorSource({ features: this.features }),
-    }),
+      geometryFunction:(feature: Feature): Point => {
+        
+        if(this.clusterIgnore.includes(feature.get('name'))) {
+          return null;
+        }
+        return <Point>feature.getGeometry();
+      }
+    });
+    const styleCache = {};
 
-    this.filterLayer = new VectorLayer({
-      visible: false,
-      style: (feat) => {
-        return feat.get("style");
+    this.pointsLayer = new VectorLayer({
+      style: (feat: Feature) => {
+        var size = feat.get('features')[0].get('description');
+        var style = styleCache[size];
+        const point: Point = <Point>feat.getGeometry();
+        const coord: number[] = point.getCoordinates();
+        const stylePoint = {
+          name: feat.get('features')[0].get('name'),
+          color:feat.get('features')[0].get('color'),
+          pos: coord
+        }
+        if (!style) {
+          style = this.createStyle(stylePoint);
+        }
+        styleCache[size] = style;
+        return style;
       },
-      source: new VectorSource({ features: [] }),
-    }), 
-
-    this.mapLayer = new ImageLayer({
-      source: new Static({
-        url: this.fullImagePath,
-        projection: this.projection,
-        imageExtent: [260, 660, 1166.66, 1177.8600000000001],
-      }),
+      source: clusterSource,//new VectorSource({ features: this.features }),
     }),
 
-    this.projection.setExtent(this.extent);
+      this.filterLayer = new VectorLayer({
+        visible: false,
+        style: (feat) => {
+          return feat.get("style");
+        },
+        source: new VectorSource({ features: [] }),
+      }),
+
+      this.mapLayer = new ImageLayer({
+        source: new Static({
+          url: this.fullImagePath,
+          projection: this.projection,
+          imageExtent: [260, 660, 1166.66, 1177.8600000000001],
+        }),
+      }),
+
+      this.projection.setExtent(this.extent);
     this.view = new View({
-      center: [683,950], //getCenter(this.extent),
+      center: [683, 950], //getCenter(this.extent),
       zoom: this.zoom,
       maxZoom: 8,
       minZoom: 0,
@@ -182,7 +211,7 @@ export class MapComponent implements OnInit {
       controls: DefaultControls().extend([
         new ScaleLine({}),
         new MousePosition({
-          coordinateFormat:createStringXY(0),
+          coordinateFormat: createStringXY(0),
           projection: this.projection,
           target: this.location.nativeElement,
         }),
@@ -196,10 +225,14 @@ export class MapComponent implements OnInit {
         this.popupOverlay.setPosition(undefined);
       }
       this.Map.forEachFeatureAtPixel(e.pixel, (f: Feature) => {
+        if (f.get('features').length > 0) {
+          f = f.get('features')[0]
+        }
+        console.log(f);
         const point: Point = <Point>f.getGeometry();
         const coord = point.getCoordinates();
-        
-        this.activeFeature = {...f.getProperties()};
+
+        this.activeFeature = { ...f.getProperties() };
 
         this.popupOverlay.setPosition(coord);
       });
@@ -214,7 +247,7 @@ export class MapComponent implements OnInit {
 
 
   setFilters(filters) {
-    if(filters.length == 0) {
+    if (filters.length == 0) {
       this.filterLayer.setVisible(false);
       this.pointsLayer.setVisible(true);
       return
@@ -222,7 +255,7 @@ export class MapComponent implements OnInit {
     const test = this.features.filter(feature => {
       return filters.includes(feature.get('name'))
     })
-    this.filterLayer.setSource(new VectorSource({features: test}))
+    this.filterLayer.setSource(new VectorSource({ features: test }))
     this.filterLayer.setVisible(true);
     this.pointsLayer.setVisible(false);
   }
@@ -230,6 +263,9 @@ export class MapComponent implements OnInit {
   selected_feature = new Select({
     condition: pointerMove,
     style: (feat) => {
+      if (feat.get('features').length > 0) {
+        feat = feat.get('features')[0]
+      }
       const point: Point = <Point>feat.getGeometry();
       const coord: number[] = point.getCoordinates();
       const name: string = <string>feat.get("name");
@@ -239,42 +275,37 @@ export class MapComponent implements OnInit {
   });
 
   createDrops(drops: Drop[]) {
-    const totalweight = drops ? drops.reduce((a, b):any => a +( b.weight || 0), 0) : 0;
-    
+    const totalweight = drops ? drops.reduce((a, b): any => a + (b.weight || 0), 0) : 0;
+
     return drops.map(drop => {
-      const numbers = this.reduce(drop.weight  ,totalweight)
-      const chance = (isNaN(numbers[0]))? "always" :`${numbers[0]} / ${numbers[1]}`
-      return {...drop,chance};
+      const numbers = this.reduce(drop.weight, totalweight)
+      const chance = (isNaN(numbers[0])) ? "always" : `${numbers[0]} / ${numbers[1]}`
+      return { ...drop, chance };
     })
   }
-  private reduce(numerator: number,denominator:number){
-    let gcd:any = function gcd(a,b){
-      return b ? gcd(b, a%b) : a;
+  private reduce(numerator: number, denominator: number) {
+    let gcd: any = function gcd(a, b) {
+      return b ? gcd(b, a % b) : a;
     };
-    gcd = gcd(numerator,denominator);
-    return [numerator/gcd, denominator/gcd];
+    gcd = gcd(numerator, denominator);
+    return [numerator / gcd, denominator / gcd];
   }
 
-  slide(type, event) {
-    console.log(event)
-    switch(type) {
-      case 'x': this.x = parseInt(event.target.value);
-      break;
-      case 'y': this.y = parseInt(event.target.value);
-      break;
-      case 's': this.s = parseFloat(event.target.value);
-    }
-    console.log(type);
-    console.log(<number>this.x);
-    console.log(<number>this.y);
-    console.log([this.x,this.y , ((1679*this.s) + this.x),(( 959*this.s) + this.y)])
-    this.mapLayer.setSource(new Static({
-      url: this.fullImagePath,
-      projection: this.projection,
-      imageExtent: [this.x,this.y ,( (1679*this.s) + this.x),(( 959*this.s) + this.y)],
-    }),)
-   }
-  
+  // slide(type, event) {
+  //   switch (type) {
+  //     case 'x': this.x = parseInt(event.target.value);
+  //       break;
+  //     case 'y': this.y = parseInt(event.target.value);
+  //       break;
+  //     case 's': this.s = parseFloat(event.target.value);
+  //   }
+  //   this.mapLayer.setSource(new Static({
+  //     url: this.fullImagePath,
+  //     projection: this.projection,
+  //     imageExtent: [this.x, this.y, ((1679 * this.s) + this.x), ((959 * this.s) + this.y)],
+  //   }))
+  // }
+
 }
 
 export interface TRFeature {

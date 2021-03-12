@@ -443,7 +443,7 @@
 
   },
   {
-    "name": "general store",
+    "name": "store",
     "description": "Shopkeeper - General Store",
     "pos":[[-237.65,921.5]],
     "info": "buy and sell items",
@@ -565,7 +565,7 @@
     ]
   },
   {
-    "name": "general store",
+    "name": "store",
     "description": "Fishing Supplies - Fishing Store",
     "pos": [[-570.4,675.6]],
     "items": [
