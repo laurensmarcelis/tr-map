@@ -53,13 +53,14 @@ export class MapComponent implements OnInit {
   fullImagePath = "./assets/tr-map.png";
   features: Feature[] = [];
   mobs: Feature[] = [];
-  
+  npc: Feature[] = [];
   interactables: Feature[] = [];
   projection: Projection;
   extent: Extent = [0, 0, 2048, 2048];
   Map: Map;
   mobLayer: VectorLayer;
   interLayer: VectorLayer;
+  npcLayer: VectorLayer;
   filterLayer: VectorLayer;
   mapLayer: ImageLayer;
   popupOverlay: Overlay;
@@ -83,27 +84,21 @@ export class MapComponent implements OnInit {
       offset: [0, -25],
     });
 
-    // this.mapService.getMobs().subscribe(mobs => {
-    //   console.log(mobs);
-
-    // })
-
-    // this.mapService.getInteractables().subscribe(inter => {
-    //   console.log(inter);
-    // })
-
     const allPoints = forkJoin([
       this.mapService.getMobs(),
-      this.mapService.getInteractables()
+      this.mapService.getInteractables(),
+      this.mapService.getNPCs(),
     ])
     
     allPoints.subscribe({
-      next : ([mobs,interactables]: any) => {
-        // console.log(mobs);
+      next : ([mobs,interactables,friendlies]: any) => {
+        console.log(friendlies);
+        
         this.mobs = this.createFeatures(mobs.data)
+        this.npc = this.createFeatures(friendlies.data)
         this.interactables = this.createFeatures(interactables.data)
-        this.features = this.interactables.concat(this.mobs);
-        this.filters = [...mobs.data,...interactables.data]
+        this.features = this.interactables.concat(this.mobs, this.npc);
+        this.filters = [...mobs.data,...interactables.data, ...friendlies.data]
         this.initMap();
       },
       error: (err) => {
@@ -113,22 +108,12 @@ export class MapComponent implements OnInit {
     this.form.valueChanges.subscribe(form => {
       this.setFilters(form.filters)
     })
-    
-    // this.http.get("./assets/points-new.json").subscribe((points: TRFeature[]) => {
-    //   const preFilter = [];
-    //   points.forEach((point: TRFeature) => {
-    //     preFilter.push(point.name)
-    //   });
-    //   this.features = this.createFeatures(points);
-    //   this.filters = [...new Set(preFilter)];
-    //   this.initMap();
-    // });
   }
 
   private createFeatures(points:TRFeature[] ) {
+    console.log(points);
     const features = [];
     points.forEach((point: TRFeature) => {
-      console.log(point);
       point.pos.forEach(position => {
         const stylePoint = {
           pos: [(position[0]) + 1024, position[1]],
@@ -139,6 +124,7 @@ export class MapComponent implements OnInit {
           geometry: new Point([(position[0]) + 1024, position[1]]),
           name: point.name,
           icon: point.icon,
+          title: point.title,
           description: point.description,
           level: point.level,
           drops: point.drops ? this.createDrops(point.totalweight, point.drops) : null,
@@ -187,24 +173,12 @@ export class MapComponent implements OnInit {
     const clusterMobSource = new Cluster({
       distance: 18,
       source: new VectorSource({ features: this.mobs }),
-      geometryFunction:(feature: Feature): Point => {
-        
-        if(this.clusterIgnore.includes(feature.get('name'))) {
-          return null;
-        }
-        return <Point>feature.getGeometry();
-      }
     });
+
+    const friendlySource = new VectorSource({ features: this.npc });
     const clusterInterSource = new Cluster({
       distance: 18,
       source: new VectorSource({ features: this.interactables }),
-      geometryFunction:(feature: Feature): Point => {
-        
-        if(this.clusterIgnore.includes(feature.get('name'))) {
-          return null;
-        }
-        return <Point>feature.getGeometry();
-      }
     });
     const styleCache = {};
 
@@ -255,7 +229,12 @@ export class MapComponent implements OnInit {
         },
         source: new VectorSource({ features: [] }),
       }),
-
+      this.npcLayer = new VectorLayer({
+        style: (feat) => {
+          return feat.get("style");
+        },
+        source: friendlySource
+      }),
       this.mapLayer = new ImageLayer({
         source: new Static({
           url: this.fullImagePath,
@@ -277,6 +256,7 @@ export class MapComponent implements OnInit {
       layers: [
         this.mapLayer,
         this.mobLayer,
+        this.npcLayer,
         this.interLayer,
         this.filterLayer,
       ],
@@ -300,7 +280,7 @@ export class MapComponent implements OnInit {
         this.popupOverlay.setPosition(undefined);
       }
       this.Map.forEachFeatureAtPixel(e.pixel, (f) => {
-        if (f.get('features').length > 0) {
+        if (f.get('features') && f.get('features').length > 0) {
           f = f.get('features')[0]
         }
         const point: Point = <Point>f.getGeometry();
@@ -321,27 +301,27 @@ export class MapComponent implements OnInit {
 
 
   setFilters(filters) {
-    console.log(filters)
     if (filters.length == 0) {
       this.filterLayer.setVisible(false);
       this.mobLayer.setVisible(true);
       this.interLayer.setVisible(true);
+      this.npcLayer.setVisible(true);
       return
     }
     const test = this.features.filter(feature => {
       return filters.includes(feature.get('name'))
     })
-    console.log(test);
     this.filterLayer.setSource(new VectorSource({ features: test }))
     this.filterLayer.setVisible(true);
     this.mobLayer.setVisible(false);
     this.interLayer.setVisible(false);
+    this.npcLayer.setVisible(false);
   }
 
   selected_feature = new Select({
     condition: pointerMove,
     style: (feat) => {
-      if (feat.get('features').length > 0) {
+      if (feat.get('features') && feat.get('features').length > 0) {
         feat = feat.get('features')[0]
       }
       const point: Point = <Point>feat.getGeometry();
@@ -391,6 +371,7 @@ export interface TRFeature {
   icon?: string;
   level?: string;
   drops?: Drop[];
+  title?: string;
   color?: string;
   description: string;
   info: string

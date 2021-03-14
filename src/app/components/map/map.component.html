@@ -3,7 +3,10 @@
     <div class="popup-inner" *ngIf="activeFeature">
       <div class="header">
         <div class="name">
-          {{ activeFeature.name }}
+          {{ activeFeature.name }} 
+          <ng-container *ngIf="activeFeature.title">
+            - {{ activeFeature.title }} 
+          </ng-container>
         </div>
         <div class="level" *ngIf="activeFeature.level">
           level: {{activeFeature.level}}

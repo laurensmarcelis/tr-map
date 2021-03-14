@@ -103,3 +103,9 @@
     -ms-transform: rotate(45deg);
     transform: rotate(45deg);
   }
+
+  .items {
+    max-height: 95%;
+    overflow-y: scroll;
+    margin-bottom: 10px;;
+  }

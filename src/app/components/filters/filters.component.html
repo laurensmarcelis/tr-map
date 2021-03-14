@@ -1,4 +1,5 @@
 <div class="grid" [ngClass]="{'open': open}">
+  <div class="items">
   <div *ngFor="let option of form.controls; let i = index">
     <label class="container" [for]="filters[i].name">
         {{ filters[i].name }}
@@ -6,6 +7,7 @@
       <span class="checkmark">  </span>
     </label>
   </div>
+</div>
   <button (click)="clear()">clear filters</button>
   <div class="flip" (click)="open = !open">
      <div>filter</div>
