@@ -32,6 +32,8 @@ import { Style, Fill, Circle, Stroke } from "ol/style";
 import OverlayPositioning from "ol/OverlayPositioning";
 import { pointerMove } from "ol/events/condition";
 import { FormControl, FormGroup } from '@angular/forms';
+import { MapApiService } from "../../service/map-api.service";
+import { forkJoin } from "rxjs";
 
 @Component({
   selector: "app-map",
@@ -50,22 +52,27 @@ export class MapComponent implements OnInit {
   filters: string[];
   fullImagePath = "./assets/tr-map.png";
   features: Feature[] = [];
+  mobs: Feature[] = [];
+  
+  interactables: Feature[] = [];
   projection: Projection;
   extent: Extent = [0, 0, 2048, 2048];
   Map: Map;
-  pointsLayer: VectorLayer;
+  mobLayer: VectorLayer;
+  interLayer: VectorLayer;
   filterLayer: VectorLayer;
   mapLayer: ImageLayer;
   popupOverlay: Overlay;
   activeFeature;
+
   form = new FormGroup({
     filters: new FormControl(),
   });
+
   @Output() mapReady = new EventEmitter<Map>();
   constructor(
-    private zone: NgZone,
-    private cd: ChangeDetectorRef,
-    private http: HttpClient
+    private http: HttpClient,
+    private mapService: MapApiService
   ) { }
 
   ngOnInit() {
@@ -76,45 +83,81 @@ export class MapComponent implements OnInit {
       offset: [0, -25],
     });
 
+    // this.mapService.getMobs().subscribe(mobs => {
+    //   console.log(mobs);
+
+    // })
+
+    // this.mapService.getInteractables().subscribe(inter => {
+    //   console.log(inter);
+    // })
+
+    const allPoints = forkJoin([
+      this.mapService.getMobs(),
+      this.mapService.getInteractables()
+    ])
+    
+    allPoints.subscribe({
+      next : ([mobs,interactables]: any) => {
+        // console.log(mobs);
+        this.mobs = this.createFeatures(mobs.data)
+        this.interactables = this.createFeatures(interactables.data)
+        this.features = this.interactables.concat(this.mobs);
+        this.filters = [...mobs.data,...interactables.data]
+        this.initMap();
+      },
+      error: (err) => {
+        console.log(err);
+      }
+    })
     this.form.valueChanges.subscribe(form => {
       this.setFilters(form.filters)
     })
-    this.http.get("./assets/points-new.json").subscribe((points: TRFeature[]) => {
-      points.forEach((point: TRFeature) => {
-        preFilter.push(point.name)
-        point.pos.forEach(position => {
-          const stylePoint = {
-            pos: [(position[0]) + 1024, position[1]],
-            name: point.name,
-            color: point.color,
-          }
-          const feat = new Feature({
-            geometry: new Point([(position[0]) + 1024, position[1]]),
-            name: point.name,
-            description: point.description,
-            level: point.level,
-            drops: point.drops ? this.createDrops(point.drops) : null,
-            color: point.color,
-            info: point.info,
-            items: point.items
-          });
-          feat.set("style", this.createStyle(stylePoint));
-          this.features.push(feat);
-        })
-      });
-
-      this.filters = [...new Set(preFilter)];
-      this.initMap();
-    });
+    
+    // this.http.get("./assets/points-new.json").subscribe((points: TRFeature[]) => {
+    //   const preFilter = [];
+    //   points.forEach((point: TRFeature) => {
+    //     preFilter.push(point.name)
+    //   });
+    //   this.features = this.createFeatures(points);
+    //   this.filters = [...new Set(preFilter)];
+    //   this.initMap();
+    // });
   }
 
+  private createFeatures(points:TRFeature[] ) {
+    const features = [];
+    points.forEach((point: TRFeature) => {
+      console.log(point);
+      point.pos.forEach(position => {
+        const stylePoint = {
+          pos: [(position[0]) + 1024, position[1]],
+          name: point.icon,
+          color: point.color,
+        }
+        const feat = new Feature({
+          geometry: new Point([(position[0]) + 1024, position[1]]),
+          name: point.name,
+          icon: point.icon,
+          description: point.description,
+          level: point.level,
+          drops: point.drops ? this.createDrops(point.totalweight, point.drops) : null,
+          color: point.color,
+          items: point.items
+        });
+        feat.set("style", this.createStyle(stylePoint));
+        features.push(feat);
+      })
+    });
+    return features;
+  }
 
 
   private createStyle(src: TRStyle, radius = 20, opacity = 0.8) {
     const icon = new Style({
       image: new Icon({
         src: `./assets/icons/${src.name}.svg`,
-        color: src.color,
+        color: colorMap[src.color],
         scale: 0.3,
       }),
     });
@@ -141,9 +184,20 @@ export class MapComponent implements OnInit {
       units: "pixels",
     });
 
-    const clusterSource = new Cluster({
+    const clusterMobSource = new Cluster({
       distance: 18,
-      source: new VectorSource({ features: this.features }),
+      source: new VectorSource({ features: this.mobs }),
+      geometryFunction:(feature: Feature): Point => {
+        
+        if(this.clusterIgnore.includes(feature.get('name'))) {
+          return null;
+        }
+        return <Point>feature.getGeometry();
+      }
+    });
+    const clusterInterSource = new Cluster({
+      distance: 18,
+      source: new VectorSource({ features: this.interactables }),
       geometryFunction:(feature: Feature): Point => {
         
         if(this.clusterIgnore.includes(feature.get('name'))) {
@@ -154,14 +208,14 @@ export class MapComponent implements OnInit {
     });
     const styleCache = {};
 
-    this.pointsLayer = new VectorLayer({
+    this.mobLayer = new VectorLayer({
       style: (feat: Feature) => {
-        var size = feat.get('features')[0].get('description');
+        var size = feat.get('features')[0].get('name');
         var style = styleCache[size];
         const point: Point = <Point>feat.getGeometry();
         const coord: number[] = point.getCoordinates();
         const stylePoint = {
-          name: feat.get('features')[0].get('name'),
+          name: feat.get('features')[0].get('icon'),
           color:feat.get('features')[0].get('color'),
           pos: coord
         }
@@ -171,7 +225,27 @@ export class MapComponent implements OnInit {
         styleCache[size] = style;
         return style;
       },
-      source: clusterSource,//new VectorSource({ features: this.features }),
+      source: clusterMobSource,//new VectorSource({ features: this.features }),
+    }),
+
+    this.interLayer = new VectorLayer({
+      style: (feat: Feature) => {
+        var size = feat.get('features')[0].get('name');
+        var style = styleCache[size];
+        const point: Point = <Point>feat.getGeometry();
+        const coord: number[] = point.getCoordinates();
+        const stylePoint = {
+          name: feat.get('features')[0].get('icon'),
+          color:feat.get('features')[0].get('color'),
+          pos: coord
+        }
+        if (!style) {
+          style = this.createStyle(stylePoint);
+        }
+        styleCache[size] = style;
+        return style;
+      },
+      source: clusterInterSource,//new VectorSource({ features: this.features }),
     }),
 
       this.filterLayer = new VectorLayer({
@@ -202,7 +276,8 @@ export class MapComponent implements OnInit {
     this.Map = new Map({
       layers: [
         this.mapLayer,
-        this.pointsLayer,
+        this.mobLayer,
+        this.interLayer,
         this.filterLayer,
       ],
       target: "map",
@@ -224,11 +299,10 @@ export class MapComponent implements OnInit {
       if (this.Map.getFeaturesAtPixel(e.pixel).length === 0) {
         this.popupOverlay.setPosition(undefined);
       }
-      this.Map.forEachFeatureAtPixel(e.pixel, (f: Feature) => {
+      this.Map.forEachFeatureAtPixel(e.pixel, (f) => {
         if (f.get('features').length > 0) {
           f = f.get('features')[0]
         }
-        console.log(f);
         const point: Point = <Point>f.getGeometry();
         const coord = point.getCoordinates();
 
@@ -247,17 +321,21 @@ export class MapComponent implements OnInit {
 
 
   setFilters(filters) {
+    console.log(filters)
     if (filters.length == 0) {
       this.filterLayer.setVisible(false);
-      this.pointsLayer.setVisible(true);
+      this.mobLayer.setVisible(true);
+      this.interLayer.setVisible(true);
       return
     }
     const test = this.features.filter(feature => {
       return filters.includes(feature.get('name'))
     })
+    console.log(test);
     this.filterLayer.setSource(new VectorSource({ features: test }))
     this.filterLayer.setVisible(true);
-    this.pointsLayer.setVisible(false);
+    this.mobLayer.setVisible(false);
+    this.interLayer.setVisible(false);
   }
 
   selected_feature = new Select({
@@ -268,17 +346,16 @@ export class MapComponent implements OnInit {
       }
       const point: Point = <Point>feat.getGeometry();
       const coord: number[] = point.getCoordinates();
-      const name: string = <string>feat.get("name");
+      const name: string = <string>feat.get("icon");
       const color: string = <string>feat.get("color");
       return this.createStyle({ pos: coord, name, color }, 20, 1);
     },
   });
 
-  createDrops(drops: Drop[]) {
-    const totalweight = drops ? drops.reduce((a, b): any => a + (b.weight || 0), 0) : 0;
+  createDrops(totalWeight, drops: Drop[]) {
 
     return drops.map(drop => {
-      const numbers = this.reduce(drop.weight, totalweight)
+      const numbers = this.reduce(drop.weight, totalWeight)
       const chance = (isNaN(numbers[0])) ? "always" : `${numbers[0]} / ${numbers[1]}`
       return { ...drop, chance };
     })
@@ -318,6 +395,8 @@ export interface TRFeature {
   description: string;
   info: string
   items: any[];
+  health: number;
+  totalweight? : number;
 }
 
 export interface Drop {
@@ -330,4 +409,15 @@ export interface TRStyle {
   pos: number[];
   name: string;
   color?: string;
+}
+
+const colorMap = {
+  'red': "#c0392b",
+  'yellow': "#f1c40f",
+  'brown': "#cd6133",
+  'coal': "#2c3e50",
+  'iron': "#e74c3c",
+  'copper': "#e67e22",
+  'purple': "#9b59b6",
+  'blue': "#2980b9"
 }

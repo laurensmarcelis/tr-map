@@ -3,15 +3,15 @@
     <div class="popup-inner" *ngIf="activeFeature">
       <div class="header">
         <div class="name">
-          {{ activeFeature.description }}
+          {{ activeFeature.name }}
         </div>
         <div class="level" *ngIf="activeFeature.level">
           level: {{activeFeature.level}}
         </div>
       </div>
       <div class="body">
-        <div class="info" *ngIf="activeFeature.info">
-          <p>{{activeFeature.info}}</p>
+        <div class="info" *ngIf="activeFeature.description">
+          <p>{{activeFeature.description}}</p>
         </div>
         <div class="drops" *ngIf="activeFeature.drops">
           

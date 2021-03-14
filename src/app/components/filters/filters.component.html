@@ -1,8 +1,8 @@
 <div class="grid" [ngClass]="{'open': open}">
   <div *ngFor="let option of form.controls; let i = index">
-    <label class="container" [for]="filters[i] ">
-        {{ filters[i] }}
-      <input type="checkbox" [formControl]="option" [id]="filters[i]" />
+    <label class="container" [for]="filters[i].name">
+        {{ filters[i].name }}
+      <input type="checkbox" [formControl]="option" [id]="filters[i].name" />
       <span class="checkmark">  </span>
     </label>
   </div>
