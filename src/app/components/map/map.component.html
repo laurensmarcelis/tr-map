@@ -1,45 +1,45 @@
-<div class="map-container" id="map">
+<div class="loader" [hidden]="!(loading$ | async)"></div>
+<div class="map-container" id="map" [hidden]="loading$ | async">
   <div class="popup" #popup>
     <div class="popup-inner" *ngIf="activeFeature">
       <div class="header">
         <div class="name">
-          {{ activeFeature.name }} 
+          {{ activeFeature.name }}
           <ng-container *ngIf="activeFeature.title">
-            - {{ activeFeature.title }} 
+            - {{ activeFeature.title }}
           </ng-container>
         </div>
         <div class="level" *ngIf="activeFeature.level">
-          level: {{activeFeature.level}}
+          level: {{ activeFeature.level }}
         </div>
       </div>
       <div class="body">
         <div class="info" *ngIf="activeFeature.description">
-          <p>{{activeFeature.description}}</p>
+          <p>{{ activeFeature.description }}</p>
         </div>
         <div class="drops" *ngIf="activeFeature.drops">
-          
-        <h5>Drops:</h5>
+          <h5>Drops:</h5>
           <ul>
             <li *ngFor="let drop of activeFeature.drops">
               <div>{{ drop.amount }} {{ drop.name }}</div>
-              <div>  {{drop.chance}}</div>
+              <div>{{ drop.chance }}</div>
             </li>
           </ul>
         </div>
         <div class="drops" *ngIf="activeFeature.items">
-        <h5>Items:</h5>
+          <h5>Items:</h5>
           <ul>
             <li *ngFor="let item of activeFeature.items">
               <div>{{ item.name }}</div>
-              <div>  {{item.price}} coins</div>
+              <div>{{ item.price }} coins</div>
             </li>
           </ul>
         </div>
-        
       </div>
     </div>
   </div>
 </div>
+
 <div class="location" #location></div>
 <form [formGroup]="form">
   <app-filters

@@ -33,7 +33,7 @@ import OverlayPositioning from "ol/OverlayPositioning";
 import { pointerMove } from "ol/events/condition";
 import { FormControl, FormGroup } from '@angular/forms';
 import { MapApiService } from "../../service/map-api.service";
-import { forkJoin } from "rxjs";
+import { forkJoin, Subject } from "rxjs";
 
 @Component({
   selector: "app-map",
@@ -48,6 +48,7 @@ export class MapComponent implements OnInit {
   x = 263;
   y = 660;
   s = 1;
+  loading$ = new Subject();
   clusterIgnore = ['npc','shop','workbench','anvil','bank','campfire']
   filters: string[];
   fullImagePath = "./assets/tr-map.png";
@@ -77,6 +78,7 @@ export class MapComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.loading$.next(true);
     const preFilter = []
     this.popupOverlay = new Overlay({
       element: this.popup.nativeElement,
@@ -92,8 +94,6 @@ export class MapComponent implements OnInit {
     
     allPoints.subscribe({
       next : ([mobs,interactables,friendlies]: any) => {
-        console.log(friendlies);
-        
         this.mobs = this.createFeatures(mobs.data)
         this.npc = this.createFeatures(friendlies.data)
         this.interactables = this.createFeatures(interactables.data)
@@ -164,6 +164,7 @@ export class MapComponent implements OnInit {
   }
 
   private initMap(): void {
+    
     this.projection = new Projection({
 
       code: "tr-map",
@@ -297,6 +298,7 @@ export class MapComponent implements OnInit {
     });
 
     this.Map.addInteraction(this.selected_feature);
+    this.loading$.next(false);
   }
 
 
