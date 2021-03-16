@@ -1,5 +1,5 @@
-<div class="loader" [hidden]="!(loading$ | async)"></div>
-<div class="map-container" id="map" [hidden]="loading$ | async">
+
+<div class="map-container" id="map">
   <div class="popup" #popup>
     <div class="popup-inner" *ngIf="activeFeature">
       <div class="header">
@@ -31,7 +31,7 @@
           <ul>
             <li *ngFor="let item of activeFeature.items">
               <div>{{ item.name }}</div>
-              <div>{{ item.price }} coins</div>
+              <div>{{ item.storeamount }} - {{ item.value }} coins</div>
             </li>
           </ul>
         </div>

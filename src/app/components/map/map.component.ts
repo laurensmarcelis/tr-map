@@ -48,7 +48,6 @@ export class MapComponent implements OnInit {
   x = 263;
   y = 660;
   s = 1;
-  loading$ = new Subject();
   clusterIgnore = ['npc','shop','workbench','anvil','bank','campfire']
   filters: string[];
   fullImagePath = "./assets/tr-map.png";
@@ -78,7 +77,6 @@ export class MapComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.loading$.next(true);
     const preFilter = []
     this.popupOverlay = new Overlay({
       element: this.popup.nativeElement,
@@ -98,7 +96,8 @@ export class MapComponent implements OnInit {
         this.npc = this.createFeatures(friendlies.data)
         this.interactables = this.createFeatures(interactables.data)
         this.features = this.interactables.concat(this.mobs, this.npc);
-        this.filters = [...mobs.data,...interactables.data, ...friendlies.data]
+        this.filters = [...mobs.data,...interactables.data, ...friendlies.data];
+        console.log(this.mobs);
         this.initMap();
       },
       error: (err) => {
@@ -298,7 +297,6 @@ export class MapComponent implements OnInit {
     });
 
     this.Map.addInteraction(this.selected_feature);
-    this.loading$.next(false);
   }
 
 
@@ -338,7 +336,7 @@ export class MapComponent implements OnInit {
 
     return drops.map(drop => {
       const numbers = this.reduce(drop.weight, totalWeight)
-      const chance = (isNaN(numbers[0])) ? "always" : `${numbers[0]} / ${numbers[1]}`
+      const chance = (isNaN(numbers[0]) || numbers[0] == 0) ? "always" : `${numbers[0]} / ${numbers[1]}`
       return { ...drop, chance };
     })
   }
