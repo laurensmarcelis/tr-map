@@ -1,4 +1,4 @@
-<div class="map-container" id="map">
+<div class="map-container" id="map" #map>
   <div class="popup" #popup>
     <div class="popup-inner" *ngIf="activeFeature">
       <div class="header">
@@ -48,5 +48,5 @@
     [filters]="filters"
   ></app-filters>
 </form>
-
+<div id="sneaky" #sneaky></div>
 <app-infotab></app-infotab>

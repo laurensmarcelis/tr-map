@@ -9,6 +9,7 @@ import {
   OnInit,
   ViewChild,
   ElementRef,
+  AfterContentInit,
 } from "@angular/core";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { View, Feature, Map, Overlay } from "ol";
@@ -40,9 +41,11 @@ import { forkJoin } from "rxjs";
   templateUrl: "./map.component.html",
   styleUrls: ["./map.component.scss"],
 })
-export class MapComponent implements OnInit {
+export class MapComponent implements OnInit, AfterContentInit {
   @ViewChild("location", { static: true }) location: ElementRef;
   @ViewChild("popup", { static: true }) popup: ElementRef;
+  @ViewChild("map", { static: true }) map: ElementRef;
+  @ViewChild("sneaky", { static: true }) sneaky: ElementRef;
   view: View;
   zoom = 4;
   x = 263;
@@ -75,6 +78,11 @@ export class MapComponent implements OnInit {
     private http: HttpClient,
     private mapService: MapApiService
   ) { }
+  ngAfterContentInit(): void {
+    this.form.valueChanges.subscribe(form => {
+      this.setFilters(form.filters)
+    })
+  }
 
   ngOnInit() {
     const preFilter = []
@@ -105,9 +113,7 @@ export class MapComponent implements OnInit {
         console.log(err);
       }
     })
-    this.form.valueChanges.subscribe(form => {
-      this.setFilters(form.filters)
-    })
+   
   }
 
   private createFeatures(points:TRFeature[] ) {
@@ -316,6 +322,11 @@ export class MapComponent implements OnInit {
     this.mobLayer.setVisible(false);
     this.interLayer.setVisible(false);
     this.npcLayer.setVisible(false);
+    if(this.map.nativeElement.querySelector('canvas')) {
+      const img = this.map.nativeElement.querySelector('canvas').toDataURL("image/png");
+    this.sneaky.nativeElement.innerHTML = '<a href="'+img+'"/>'
+    }
+    
   }
 
   selected_feature = new Select({
