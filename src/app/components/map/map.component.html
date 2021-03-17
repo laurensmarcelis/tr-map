@@ -1,4 +1,6 @@
-<div class="map-container" id="map" #map>
+
+<div class="loader" [hidden]="!(loading$ | async)"><img src="./assets/logo.png"/></div>
+<div class="map-container" id="map" #map [ngClass]="{'invis': (loading$ | async)}">
   <div class="popup" #popup>
     <div class="popup-inner" *ngIf="activeFeature">
       <div class="header">

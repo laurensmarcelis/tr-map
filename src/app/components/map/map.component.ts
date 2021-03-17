@@ -1,11 +1,7 @@
 import {
   Component,
-  NgZone,
-  AfterViewInit,
   Output,
-  Input,
   EventEmitter,
-  ChangeDetectorRef,
   OnInit,
   ViewChild,
   ElementRef,
@@ -34,7 +30,7 @@ import OverlayPositioning from "ol/OverlayPositioning";
 import { pointerMove } from "ol/events/condition";
 import { FormControl, FormGroup } from '@angular/forms';
 import { MapApiService } from "../../service/map-api.service";
-import { forkJoin, Subject } from "rxjs";
+import { BehaviorSubject, forkJoin, Subject } from "rxjs";
 
 @Component({
   selector: "app-map",
@@ -51,6 +47,7 @@ export class MapComponent implements OnInit, AfterContentInit {
   x = 263;
   y = 660;
   s = 1;
+  loading$ = new BehaviorSubject<boolean>(true);
   clusterIgnore = ['npc','shop','workbench','anvil','bank','campfire']
   filters: string[];
   fullImagePath = "./assets/tr-map.png";
@@ -78,6 +75,8 @@ export class MapComponent implements OnInit, AfterContentInit {
     private http: HttpClient,
     private mapService: MapApiService
   ) { }
+
+
   ngAfterContentInit(): void {
     this.form.valueChanges.subscribe(form => {
       this.setFilters(form.filters)
@@ -85,6 +84,8 @@ export class MapComponent implements OnInit, AfterContentInit {
   }
 
   ngOnInit() {
+
+    
     const preFilter = []
     this.popupOverlay = new Overlay({
       element: this.popup.nativeElement,
@@ -97,15 +98,20 @@ export class MapComponent implements OnInit, AfterContentInit {
       this.mapService.getInteractables(),
       this.mapService.getNPCs(),
     ])
+
+    this.mapService.getHiScore().subscribe(val => {
+      console.log("it's alive", val)
+    })
     
     allPoints.subscribe({
       next : ([mobs,interactables,friendlies]: any) => {
+        
+        
         this.mobs = this.createFeatures(mobs.data)
         this.npc = this.createFeatures(friendlies.data)
         this.interactables = this.createFeatures(interactables.data)
         this.features = this.interactables.concat(this.mobs, this.npc);
         this.filters = [...mobs.data,...interactables.data, ...friendlies.data];
-        console.log(this.mobs);
         this.initMap();
       },
       error: (err) => {
@@ -116,7 +122,6 @@ export class MapComponent implements OnInit, AfterContentInit {
   }
 
   private createFeatures(points:TRFeature[] ) {
-    console.log(points);
     const features = [];
     points.forEach((point: TRFeature) => {
       point.pos.forEach(position => {
@@ -303,6 +308,7 @@ export class MapComponent implements OnInit, AfterContentInit {
     });
 
     this.Map.addInteraction(this.selected_feature);
+    this.loading$.next(false);
   }
 
 
@@ -322,10 +328,7 @@ export class MapComponent implements OnInit, AfterContentInit {
     this.mobLayer.setVisible(false);
     this.interLayer.setVisible(false);
     this.npcLayer.setVisible(false);
-    if(this.map.nativeElement.querySelector('canvas')) {
-      const img = this.map.nativeElement.querySelector('canvas').toDataURL("image/png");
-    this.sneaky.nativeElement.innerHTML = '<a href="'+img+'"/>'
-    }
+    
     
   }
 
@@ -412,4 +415,8 @@ const colorMap = {
   'copper': "#e67e22",
   'purple': "#9b59b6",
   'blue': "#2980b9"
+}
+
+function tap(arg0: () => void): import("rxjs").OperatorFunction<[Object, Object, Object], unknown> {
+  throw new Error("Function not implemented.");
 }

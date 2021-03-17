@@ -42,7 +42,6 @@ export class FiltersComponent implements OnInit, ControlValueAccessor, AfterCont
 
    
     this.form.valueChanges.subscribe((val) => {
-      console.log(val);
       let returnVal = this.filters.map((_val) => _val.name).filter((_val, i) => val[i] && _val);;
 
       this.onChange(returnVal);
