@@ -7,7 +7,7 @@ import {
   ElementRef,
   AfterContentInit,
 } from "@angular/core";
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import { View, Feature, Map, Overlay } from "ol";
 import { createStringXY } from "ol/coordinate";
 import ImageLayer from "ol/layer/Image";
@@ -20,7 +20,7 @@ import {
 } from "ol/control";
 import VectorLayer from "ol/layer/Vector";
 import Projection from "ol/proj/Projection";
-import { Extent, getCenter } from "ol/extent";
+import { Extent } from "ol/extent";
 import VectorSource from "ol/source/Vector";
 import Cluster from 'ol/source/Cluster';
 import Point from "ol/geom/Point";
@@ -30,7 +30,9 @@ import OverlayPositioning from "ol/OverlayPositioning";
 import { pointerMove } from "ol/events/condition";
 import { FormControl, FormGroup } from '@angular/forms';
 import { MapApiService } from "../../service/map-api.service";
-import { BehaviorSubject, forkJoin, Subject } from "rxjs";
+import { BehaviorSubject, forkJoin } from "rxjs";
+import LayerGroup from "ol/layer/Group";
+import { debug } from "console";
 
 @Component({
   selector: "app-map",
@@ -48,7 +50,7 @@ export class MapComponent implements OnInit, AfterContentInit {
   y = 660;
   s = 1;
   loading$ = new BehaviorSubject<boolean>(true);
-  clusterIgnore = ['npc','shop','workbench','anvil','bank','campfire']
+  clusterIgnore = ['npc', 'shop', 'workbench', 'anvil', 'bank', 'campfire']
   filters: string[];
   fullImagePath = "./assets/tr-map.png";
   features: Feature[] = [];
@@ -84,8 +86,6 @@ export class MapComponent implements OnInit, AfterContentInit {
   }
 
   ngOnInit() {
-
-    
     const preFilter = []
     this.popupOverlay = new Overlay({
       element: this.popup.nativeElement,
@@ -99,29 +99,25 @@ export class MapComponent implements OnInit, AfterContentInit {
       this.mapService.getNPCs(),
     ])
 
-    this.mapService.getHiScore().subscribe(val => {
-      console.log("it's alive", val)
-    })
-    
     allPoints.subscribe({
-      next : ([mobs,interactables,friendlies]: any) => {
-        
-        
+      next: ([mobs, interactables, friendlies]: any) => {
+
+
         this.mobs = this.createFeatures(mobs.data)
         this.npc = this.createFeatures(friendlies.data)
         this.interactables = this.createFeatures(interactables.data)
         this.features = this.interactables.concat(this.mobs, this.npc);
-        this.filters = [...mobs.data,...interactables.data, ...friendlies.data];
+        this.filters = [...mobs.data, ...interactables.data, ...friendlies.data];
         this.initMap();
       },
       error: (err) => {
         console.log(err);
       }
     })
-   
+
   }
 
-  private createFeatures(points:TRFeature[] ) {
+  private createFeatures(points: TRFeature[]) {
     const features = [];
     points.forEach((point: TRFeature) => {
       point.pos.forEach(position => {
@@ -145,6 +141,20 @@ export class MapComponent implements OnInit, AfterContentInit {
         features.push(feat);
       })
     });
+
+    const style = {
+      pos: [(200) + 1024, 200],
+      name: 'pvp',
+    }
+
+    const point = new Feature({
+      geometry: new Point([(200) + 1024, 200]),
+      name: 'pvp',
+      icon: 'pvp',
+
+    });
+    point.set('style', this.createStyle(style));
+    features.push(point)
     return features;
   }
 
@@ -174,7 +184,7 @@ export class MapComponent implements OnInit, AfterContentInit {
   }
 
   private initMap(): void {
-    
+
     this.projection = new Projection({
 
       code: "tr-map",
@@ -201,7 +211,7 @@ export class MapComponent implements OnInit, AfterContentInit {
         const coord: number[] = point.getCoordinates();
         const stylePoint = {
           name: feat.get('features')[0].get('icon'),
-          color:feat.get('features')[0].get('color'),
+          color: feat.get('features')[0].get('color'),
           pos: coord
         }
         if (!style) {
@@ -213,25 +223,25 @@ export class MapComponent implements OnInit, AfterContentInit {
       source: clusterMobSource,//new VectorSource({ features: this.features }),
     }),
 
-    this.interLayer = new VectorLayer({
-      style: (feat: Feature) => {
-        var size = feat.get('features')[0].get('name');
-        var style = styleCache[size];
-        const point: Point = <Point>feat.getGeometry();
-        const coord: number[] = point.getCoordinates();
-        const stylePoint = {
-          name: feat.get('features')[0].get('icon'),
-          color:feat.get('features')[0].get('color'),
-          pos: coord
-        }
-        if (!style) {
-          style = this.createStyle(stylePoint);
-        }
-        styleCache[size] = style;
-        return style;
-      },
-      source: clusterInterSource,//new VectorSource({ features: this.features }),
-    }),
+      this.interLayer = new VectorLayer({
+        style: (feat: Feature) => {
+          var size = feat.get('features')[0].get('name');
+          var style = styleCache[size];
+          const point: Point = <Point>feat.getGeometry();
+          const coord: number[] = point.getCoordinates();
+          const stylePoint = {
+            name: feat.get('features')[0].get('icon'),
+            color: feat.get('features')[0].get('color'),
+            pos: coord
+          }
+          if (!style) {
+            style = this.createStyle(stylePoint);
+          }
+          styleCache[size] = style;
+          return style;
+        },
+        source: clusterInterSource,//new VectorSource({ features: this.features }),
+      }),
 
       this.filterLayer = new VectorLayer({
         visible: false,
@@ -265,11 +275,21 @@ export class MapComponent implements OnInit, AfterContentInit {
     });
     this.Map = new Map({
       layers: [
-        this.mapLayer,
-        this.mobLayer,
-        this.npcLayer,
-        this.interLayer,
-        this.filterLayer,
+        new LayerGroup({         
+          layers: [
+            this.mapLayer,
+            this.mobLayer,
+            this.npcLayer,
+            this.interLayer,
+            this.filterLayer,
+          ]
+        }),
+        new LayerGroup({
+          layers: [
+            this.mapLayer,
+            this.mobLayer,
+          ]
+        })
       ],
       target: "map",
       view: this.view,
@@ -298,15 +318,25 @@ export class MapComponent implements OnInit, AfterContentInit {
         const coord = point.getCoordinates();
 
         this.activeFeature = { ...f.getProperties() };
-
         this.popupOverlay.setPosition(coord);
       });
     });
-    this.Map.on("singleclick", function (evt) {
+    this.Map.on("singleclick", (evt) => {
       var coordinate = evt.coordinate;
       console.log(coordinate.toString());
+      this.Map.forEachFeatureAtPixel(evt.pixel, (f) => {
+        if (f.get('features') && f.get('features').length > 0) {
+          f = f.get('features')[0]
+        }
+        if (f.get('icon') === 'pvp') {
+          console.log();
+          this.Map.getLayers().getArray()[0].setVisible(false)
+          this.Map.getLayers().getArray()[1].setVisible(true)
+        }
+      });
     });
-
+    console.log(this.Map.getLayers().getArray())
+    this.Map.getLayers().getArray()[1].setVisible(false)
     this.Map.addInteraction(this.selected_feature);
     this.loading$.next(false);
   }
@@ -328,8 +358,8 @@ export class MapComponent implements OnInit, AfterContentInit {
     this.mobLayer.setVisible(false);
     this.interLayer.setVisible(false);
     this.npcLayer.setVisible(false);
-    
-    
+
+
   }
 
   selected_feature = new Select({
@@ -391,7 +421,7 @@ export interface TRFeature {
   info: string
   items: any[];
   health: number;
-  totalweight? : number;
+  totalweight?: number;
 }
 
 export interface Drop {
