@@ -20,7 +20,22 @@
     color: black;
     filter: invert(1);
 }
+.prev {
+    z-index: 99;
+    position: absolute;
+    top: 2rem;
+    left: 50%;
+    
+    transform: translateX(-50%);
 
+    button {
+        border-radius: 4px;
+        padding: 5px 10px;
+        background-color: #FFD056;
+    border: 0;
+    outline: 0;
+    }
+}
 .location {
     color: white;
     position: absolute;

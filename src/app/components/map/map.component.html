@@ -4,6 +4,9 @@
   <input  (change)="slide('y',$event)" type="range" min="0" max="2048" > 
   <input  (change)="slide('s',$event)" type="range" min="0" max="2" step="0.01"> 
 </div> -->
+<div class="prev" *ngIf="returnMain">
+  <button (click)="setActiveGroup(0)">return to main map</button>
+</div>
 <div class="loader" [hidden]="!(loading$ | async)"><img src="./assets/logo.png"/></div>
 <div class="map-container" id="map" #map [ngClass]="{'invis': (loading$ | async)}">
   <div class="popup" #popup>

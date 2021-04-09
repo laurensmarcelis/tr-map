@@ -52,6 +52,7 @@ export class MapComponent implements OnInit, AfterContentInit {
   loading$ = new BehaviorSubject<boolean>(true);
   clusterIgnore = ['npc', 'shop', 'workbench', 'anvil', 'bank', 'campfire']
   filters: string[];
+  returnMain = false;
   fullImagePath = "./assets/tr-map.png";
   features: Feature[] = [];
   mobs: Feature[] = [];
@@ -329,7 +330,7 @@ export class MapComponent implements OnInit, AfterContentInit {
           f = f.get('features')[0]
         }
         if (f.get('icon') === 'pvp') {
-          console.log();
+          this.returnMain = true;
           this.Map.getLayers().getArray()[0].setVisible(false)
           this.Map.getLayers().getArray()[1].setVisible(true)
         }
@@ -360,6 +361,11 @@ export class MapComponent implements OnInit, AfterContentInit {
     this.npcLayer.setVisible(false);
 
 
+  }
+
+  setActiveGroup(id) {
+    this.Map.getLayers().getArray()[0].setVisible(true)
+    this.Map.getLayers().getArray()[1].setVisible(false)
   }
 
   selected_feature = new Select({
