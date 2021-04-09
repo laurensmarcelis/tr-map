@@ -1,11 +1,23 @@
-import { AfterContentInit, Component, forwardRef, Input, OnInit } from '@angular/core';
-import { ControlValueAccessor, FormArray, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import {
+  AfterContentInit,
+  Component,
+  forwardRef,
+  Input,
+  OnInit,
+  SimpleChanges,
+} from "@angular/core";
+import {
+  ControlValueAccessor,
+  FormArray,
+  FormControl,
+  NG_VALUE_ACCESSOR,
+} from "@angular/forms";
+import { ActivatedRoute, Router } from "@angular/router";
 
 @Component({
-  selector: 'app-filters',
-  templateUrl: './filters.component.html',
-  styleUrls: ['./filters.component.scss'],
+  selector: "app-filters",
+  templateUrl: "./filters.component.html",
+  styleUrls: ["./filters.component.scss"],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -14,44 +26,75 @@ import { ActivatedRoute } from '@angular/router';
     },
   ],
 })
-export class FiltersComponent implements OnInit, ControlValueAccessor, AfterContentInit {
+export class FiltersComponent
+  implements OnInit, ControlValueAccessor, AfterContentInit {
   @Input() filters;
   open = false;
   filter = null;
   onTouched: () => void;
-  onChange: (value: string[]) => void;
-  constructor(
-    private route: ActivatedRoute
-  ) { }
-  ngAfterContentInit(): void {
-    if(this.filter) {
-      const ret = this.filters.findIndex(x => x.name === this.filter);
-      this.form.get(String(ret)).setValue(true);
-    };
-  }
   form = new FormArray([]);
-  ngOnInit() {
-    this.route.queryParams.subscribe(params => {
-      if (params.filter) {
-        this.filter = params.filter;
-      }
-    });
-    this.filters.forEach((item) => {
+  onChange: (value: string[]) => void;
+  constructor(private route: ActivatedRoute, private router: Router) {}
+
+  ngAfterContentInit(): void {
+    if (this.filter) {
+      console.log(this.filter)
+      this.filter.forEach(element => {
+        console.log(element);
+        const ret = this.filters.findIndex((x) => x.name === element);
+        console.log(this.form.controls[0]);
+        console.log(ret);
+        this.form.get(String(ret)).setValue(true);
+      });
+      
+      
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (!changes.filters.isFirstChange()) {
+      this.form.controls = [];
+      this.populateForm(changes.filters.currentValue);
+    }
+    // You can also use categoryId.previousValue and
+    // categoryId.firstChange for comparing old and new values
+  }
+
+  populateForm(filters) {
+    filters.forEach((item) => {
       this.form.push(new FormControl(false));
     });
+  }
 
-   
-    this.form.valueChanges.subscribe((val) => {
-      let returnVal = this.filters.map((_val) => _val.name).filter((_val, i) => val[i] && _val);;
-
-      this.onChange(returnVal);
+  ngOnInit() {
+    this.route.queryParams.subscribe((params) => {
+      if (params.filter) {
+        this.filter = params.filter.length ? params.filter : [params.filter];
+      }
     });
 
-    
-  }
- 
+    this.populateForm(this.filters);
+    this.form.valueChanges.subscribe((val) => {
+      let returnVal = this.filters
+        .map((_val) => _val.name)
+        .filter((_val, i) => val[i] && _val);
 
-  writeValue(obj: any): void { }
+      this.onChange(returnVal);
+      this.setQueryParams(returnVal);
+    });
+  }
+
+
+  setQueryParams(returnVal) {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        filter: returnVal
+      },
+    });
+  }
+
+  writeValue(obj: any): void {}
 
   registerOnChange(fn: any): void {
     this.onChange = fn;
@@ -71,5 +114,4 @@ export class FiltersComponent implements OnInit, ControlValueAccessor, AfterCont
       this.form.enable({ emitEvent: false });
     }
   }
-
 }

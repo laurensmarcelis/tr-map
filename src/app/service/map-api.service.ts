@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class MapApiService {
-  baseUrl = 'https://api.tr-map.com'
+  baseUrl = '//localhost:8050'
   constructor(
     private http: HttpClient
   ) { }
@@ -18,5 +18,9 @@ export class MapApiService {
   }
   getMobs() {
     return this.http.get(`${this.baseUrl}/npc/mobs`)
+  }
+
+  getMaps() {
+    return this.http.get(`${this.baseUrl}/lands`)
   }
 }

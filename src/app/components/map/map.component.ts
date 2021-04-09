@@ -7,7 +7,6 @@ import {
   ElementRef,
   AfterContentInit,
 } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
 import { View, Feature, Map, Overlay } from "ol";
 import { createStringXY } from "ol/coordinate";
 import ImageLayer from "ol/layer/Image";
@@ -22,17 +21,16 @@ import VectorLayer from "ol/layer/Vector";
 import Projection from "ol/proj/Projection";
 import { Extent } from "ol/extent";
 import VectorSource from "ol/source/Vector";
-import Cluster from 'ol/source/Cluster';
+import Cluster from "ol/source/Cluster";
 import Point from "ol/geom/Point";
 import Select from "ol/interaction/Select";
 import { Style, Fill, Circle, Stroke } from "ol/style";
 import OverlayPositioning from "ol/OverlayPositioning";
 import { pointerMove } from "ol/events/condition";
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup } from "@angular/forms";
 import { MapApiService } from "../../service/map-api.service";
 import { BehaviorSubject, forkJoin } from "rxjs";
 import LayerGroup from "ol/layer/Group";
-import { debug } from "console";
 
 @Component({
   selector: "app-map",
@@ -49,45 +47,34 @@ export class MapComponent implements OnInit, AfterContentInit {
   x = 263;
   y = 660;
   s = 1;
+  maps;
   loading$ = new BehaviorSubject<boolean>(true);
-  clusterIgnore = ['npc', 'shop', 'workbench', 'anvil', 'bank', 'campfire']
+  clusterIgnore = ["npc", "shop", "workbench", "anvil", "bank", "campfire"];
   filters: string[];
   returnMain = false;
   fullImagePath = "./assets/tr-map.png";
   features: Feature[] = [];
-  mobs: Feature[] = [];
-  npc: Feature[] = [];
-  interactables: Feature[] = [];
   projection: Projection;
   extent: Extent = [0, 0, 2048, 2048];
   Map: Map;
-  mobLayer: VectorLayer;
-  interLayer: VectorLayer;
-  npcLayer: VectorLayer;
-  filterLayer: VectorLayer;
   mapLayer: ImageLayer;
   popupOverlay: Overlay;
   activeFeature;
-
+  activeMap = 0;
   form = new FormGroup({
     filters: new FormControl(),
   });
 
   @Output() mapReady = new EventEmitter<Map>();
-  constructor(
-    private http: HttpClient,
-    private mapService: MapApiService
-  ) { }
-
+  constructor(private mapService: MapApiService) {}
 
   ngAfterContentInit(): void {
-    this.form.valueChanges.subscribe(form => {
-      this.setFilters(form.filters)
-    })
+    this.form.valueChanges.subscribe((form) => {
+      this.setFilters(form.filters);
+    });
   }
 
   ngOnInit() {
-    const preFilter = []
     this.popupOverlay = new Overlay({
       element: this.popup.nativeElement,
       positioning: OverlayPositioning.BOTTOM_CENTER,
@@ -95,70 +82,66 @@ export class MapComponent implements OnInit, AfterContentInit {
     });
 
     const allPoints = forkJoin([
+      this.mapService.getMaps(),
       this.mapService.getMobs(),
       this.mapService.getInteractables(),
       this.mapService.getNPCs(),
-    ])
+    ]);
 
     allPoints.subscribe({
-      next: ([mobs, interactables, friendlies]: any) => {
+      next: ([maps, mobs, interactables, friendlies]: any) => {
+        this.maps = maps.data;
+        this.maps.forEach((map, index) => {
+          const _mobs = mobs.data.filter((item) => item.map == index);
+          const _interactables = interactables.data.filter(
+            (item) => item.map == index
+          );
+          const _npc = friendlies.data.filter((item) => item.map == index);
 
-
-        this.mobs = this.createFeatures(mobs.data)
-        this.npc = this.createFeatures(friendlies.data)
-        this.interactables = this.createFeatures(interactables.data)
-        this.features = this.interactables.concat(this.mobs, this.npc);
-        this.filters = [...mobs.data, ...interactables.data, ...friendlies.data];
+          map.mobs = this.createFeatures(_mobs);
+          map.interactables = this.createFeatures(_interactables);
+          map.npc = this.createFeatures(_npc);
+          map.filters = [..._mobs, ..._interactables, ..._npc];
+          map.features = map.interactables.concat(map.mobs, map.npc);
+        });
+        this.filters = this.maps[0].filters;
         this.initMap();
       },
       error: (err) => {
         console.log(err);
-      }
-    })
-
+      },
+    });
   }
 
   private createFeatures(points: TRFeature[]) {
     const features = [];
     points.forEach((point: TRFeature) => {
-      point.pos.forEach(position => {
+      point.pos.forEach((position) => {
         const stylePoint = {
-          pos: [(position[0]) + 1024, position[1]],
+          pos: [position[0] + 1024, position[1]],
           name: point.icon,
           color: point.color,
-        }
+        };
         const feat = new Feature({
-          geometry: new Point([(position[0]) + 1024, position[1]]),
+          geometry: new Point([position[0] + 1024, position[1]]),
           name: point.name,
           icon: point.icon,
           title: point.title,
           description: point.description,
           level: point.level,
-          drops: point.drops ? this.createDrops(point.totalweight, point.drops) : null,
+          drops: point.drops
+            ? this.createDrops(point.totalweight, point.drops)
+            : null,
           color: point.color,
-          items: point.items
+          items: point.items,
         });
         feat.set("style", this.createStyle(stylePoint));
         features.push(feat);
-      })
+      });
     });
 
-    const style = {
-      pos: [(200) + 1024, 200],
-      name: 'pvp',
-    }
-
-    const point = new Feature({
-      geometry: new Point([(200) + 1024, 200]),
-      name: 'pvp',
-      icon: 'pvp',
-
-    });
-    point.set('style', this.createStyle(style));
-    features.push(point)
     return features;
   }
-
 
   private createStyle(src: TRStyle, radius = 20, opacity = 0.8) {
     const icon = new Style({
@@ -185,113 +168,81 @@ export class MapComponent implements OnInit, AfterContentInit {
   }
 
   private initMap(): void {
-
     this.projection = new Projection({
-
       code: "tr-map",
       units: "pixels",
     });
 
-    const clusterMobSource = new Cluster({
-      distance: 18,
-      source: new VectorSource({ features: this.mobs }),
-    });
-
-    const friendlySource = new VectorSource({ features: this.npc });
-    const clusterInterSource = new Cluster({
-      distance: 18,
-      source: new VectorSource({ features: this.interactables }),
-    });
-    const styleCache = {};
-
-    this.mobLayer = new VectorLayer({
-      style: (feat: Feature) => {
-        var size = feat.get('features')[0].get('name');
-        var style = styleCache[size];
-        const point: Point = <Point>feat.getGeometry();
-        const coord: number[] = point.getCoordinates();
-        const stylePoint = {
-          name: feat.get('features')[0].get('icon'),
-          color: feat.get('features')[0].get('color'),
-          pos: coord
-        }
-        if (!style) {
-          style = this.createStyle(stylePoint);
-        }
-        styleCache[size] = style;
-        return style;
-      },
-      source: clusterMobSource,//new VectorSource({ features: this.features }),
-    }),
-
-      this.interLayer = new VectorLayer({
-        style: (feat: Feature) => {
-          var size = feat.get('features')[0].get('name');
-          var style = styleCache[size];
-          const point: Point = <Point>feat.getGeometry();
-          const coord: number[] = point.getCoordinates();
-          const stylePoint = {
-            name: feat.get('features')[0].get('icon'),
-            color: feat.get('features')[0].get('color'),
-            pos: coord
-          }
-          if (!style) {
-            style = this.createStyle(stylePoint);
-          }
-          styleCache[size] = style;
-          return style;
-        },
-        source: clusterInterSource,//new VectorSource({ features: this.features }),
-      }),
-
-      this.filterLayer = new VectorLayer({
-        visible: false,
-        style: (feat) => {
-          return feat.get("style");
-        },
-        source: new VectorSource({ features: [] }),
-      }),
-      this.npcLayer = new VectorLayer({
-        style: (feat) => {
-          return feat.get("style");
-        },
-        source: friendlySource
-      }),
-      this.mapLayer = new ImageLayer({
-        source: new Static({
-          url: this.fullImagePath,
-          projection: this.projection,
-          imageExtent: [260, 660, 1166.66, 1177.8600000000001],
-        }),
-      }),
-
-      this.projection.setExtent(this.extent);
+    this.projection.setExtent(this.extent);
     this.view = new View({
-      center: [683, 950], //getCenter(this.extent),
+      center: [683, 950],
       zoom: this.zoom,
       maxZoom: 8,
       minZoom: 0,
       extent: this.extent,
       projection: this.projection,
     });
-    this.Map = new Map({
-      layers: [
-        new LayerGroup({         
-          layers: [
-            this.mapLayer,
-            this.mobLayer,
-            this.npcLayer,
-            this.interLayer,
-            this.filterLayer,
-          ]
+
+    const layers = [];
+    this.maps.forEach((map, index) => {;
+
+      const clusterMobSource = new Cluster({
+        distance: 18,
+        source: new VectorSource({ features: map.mobs }),
+      });
+
+      const friendlySource = new VectorSource({ features: map.npc });
+      const clusterInterSource = new Cluster({
+        distance: 18,
+        source: new VectorSource({ features: map.interactables }),
+      });
+      const mobLayer = new VectorLayer({
+        className: "mobs",
+        style: (feat: Feature) => {
+          return this.createCachedStyle(feat);
+        },
+        source: clusterMobSource,
+      })
+
+      const interLayer = new VectorLayer({
+        className: "interactables",
+        style: (feat: Feature) => {
+          return this.createCachedStyle(feat);
+        },
+        source: clusterInterSource,
+      })
+
+      const filterLayer = new VectorLayer({
+        className: "filter",
+        visible: false,
+        style: (feat) => {
+          return feat.get("style");
+        },
+        source: new VectorSource({ features: [] }),
+      })
+
+      const npcLayer = new VectorLayer({
+        className: "friendlies",
+        style: (feat) => {
+          return feat.get("style");
+        },
+        source: friendlySource,
+      })
+
+      const mapLayer = new ImageLayer({
+        className: "map",
+        source: new Static({
+          url: this.fullImagePath,
+          projection: this.projection,
+          imageExtent: [260, 660, 1166.66, 1177.8600000000001],
         }),
-        new LayerGroup({
-          layers: [
-            this.mapLayer,
-            this.mobLayer,
-          ]
-        })
-      ],
+      })
+      
+      layers[index] = new LayerGroup({layers:[mapLayer, mobLayer,interLayer,filterLayer, npcLayer]})
+    });
+    
+    this.Map = new Map({
+      layers: layers,
       target: "map",
       view: this.view,
       overlays: [this.popupOverlay],
@@ -304,16 +255,16 @@ export class MapComponent implements OnInit, AfterContentInit {
         }),
       ]),
     });
-    let selected = null;
-    this.Map.on("pointermove", (e) => {
 
+
+    this.Map.on("pointermove", (e) => {
       const coord = e.coordinate;
       if (this.Map.getFeaturesAtPixel(e.pixel).length === 0) {
         this.popupOverlay.setPosition(undefined);
       }
       this.Map.forEachFeatureAtPixel(e.pixel, (f) => {
-        if (f.get('features') && f.get('features').length > 0) {
-          f = f.get('features')[0]
+        if (f.get("features") && f.get("features").length > 0) {
+          f = f.get("features")[0];
         }
         const point: Point = <Point>f.getGeometry();
         const coord = point.getCoordinates();
@@ -322,57 +273,70 @@ export class MapComponent implements OnInit, AfterContentInit {
         this.popupOverlay.setPosition(coord);
       });
     });
+
     this.Map.on("singleclick", (evt) => {
       var coordinate = evt.coordinate;
       console.log(coordinate.toString());
       this.Map.forEachFeatureAtPixel(evt.pixel, (f) => {
-        if (f.get('features') && f.get('features').length > 0) {
-          f = f.get('features')[0]
+        if (f.get("features") && f.get("features").length > 0) {
+          f = f.get("features")[0];
         }
-        if (f.get('icon') === 'pvp') {
-          this.returnMain = true;
-          this.Map.getLayers().getArray()[0].setVisible(false)
-          this.Map.getLayers().getArray()[1].setVisible(true)
+        if (f.get("icon") === "portal") {
+          this.setActiveGroup(1)
         }
       });
     });
-    console.log(this.Map.getLayers().getArray())
-    this.Map.getLayers().getArray()[1].setVisible(false)
+
+
+
+    this.setActiveGroup(0)
     this.Map.addInteraction(this.selected_feature);
     this.loading$.next(false);
   }
 
-
   setFilters(filters) {
+    const activeLayer = this.getActiveLayers();
+    console.log(activeLayer.getLayersArray()[1].getKeys());
+    console.log(activeLayer.getLayersArray()[1]);
     if (filters.length == 0) {
-      this.filterLayer.setVisible(false);
-      this.mobLayer.setVisible(true);
-      this.interLayer.setVisible(true);
-      this.npcLayer.setVisible(true);
-      return
+      activeLayer.getLayersArray().forEach(layer => {
+        layer.setVisible(true);
+        if(layer.getClassName() === 'filter') layer.setVisible(false);
+
+      });
+      return;
     }
-    const test = this.features.filter(feature => {
-      return filters.includes(feature.get('name'))
-    })
-    this.filterLayer.setSource(new VectorSource({ features: test }))
-    this.filterLayer.setVisible(true);
-    this.mobLayer.setVisible(false);
-    this.interLayer.setVisible(false);
-    this.npcLayer.setVisible(false);
+    const test = this.maps[this.activeMap].features.filter((feature) => {
+      return filters.includes(feature.get("name"));
+    });
 
+    activeLayer.getLayersArray().forEach(layer => {
+      layer.setVisible(false);
+      if(layer.getClassName() === 'filter' || layer.getClassName() === 'map') {layer.setVisible(true)};
+      if(layer.getClassName() === 'filter') layer.setSource(new VectorSource({ features: test }));
+      
+    });
+  }
 
+  getActiveLayers() {
+    return this.Map.getLayers().getArray()[this.activeMap];
   }
 
   setActiveGroup(id) {
-    this.Map.getLayers().getArray()[0].setVisible(true)
-    this.Map.getLayers().getArray()[1].setVisible(false)
+    this.filters = this.maps[id].filters;
+    this.returnMain = (id == 0) ? false: true;
+    this.activeMap = id;
+    this.Map.getLayers().getArray().forEach(element => {
+      element.setVisible(false);
+    });
+    this.Map.getLayers().getArray()[id].setVisible(true);
   }
 
   selected_feature = new Select({
     condition: pointerMove,
     style: (feat) => {
-      if (feat.get('features') && feat.get('features').length > 0) {
-        feat = feat.get('features')[0]
+      if (feat.get("features") && feat.get("features").length > 0) {
+        feat = feat.get("features")[0];
       }
       const point: Point = <Point>feat.getGeometry();
       const coord: number[] = point.getCoordinates();
@@ -382,13 +346,33 @@ export class MapComponent implements OnInit, AfterContentInit {
     },
   });
 
-  createDrops(totalWeight, drops: Drop[]) {
+  createCachedStyle(feat: Feature) {
+    const styleCache = {};
+    const size = feat.get("features")[0].get("name");
+    let style = styleCache[size];
+    const point: Point = <Point>feat.getGeometry();
+    const coord: number[] = point.getCoordinates();
+    const stylePoint = {
+      name: feat.get("features")[0].get("icon"),
+      color: feat.get("features")[0].get("color"),
+      pos: coord,
+    };
+    if (!style) {
+      style = this.createStyle(stylePoint);
+    }
+    styleCache[size] = style;
+    return style;
+  }
 
-    return drops.map(drop => {
-      const numbers = this.reduce(drop.weight, totalWeight)
-      const chance = (isNaN(numbers[0]) || numbers[0] == 0) ? "always" : `${numbers[0]} / ${numbers[1]}`
+  createDrops(totalWeight, drops: Drop[]) {
+    return drops.map((drop) => {
+      const numbers = this.reduce(drop.weight, totalWeight);
+      const chance =
+        isNaN(numbers[0]) || numbers[0] == 0
+          ? "always"
+          : `${numbers[0]} / ${numbers[1]}`;
       return { ...drop, chance };
-    })
+    });
   }
   private reduce(numerator: number, denominator: number) {
     let gcd: any = function gcd(a, b) {
@@ -412,7 +396,6 @@ export class MapComponent implements OnInit, AfterContentInit {
   //     imageExtent: [this.x, this.y, ((1679 * this.s) + this.x), ((959 * this.s) + this.y)],
   //   }))
   // }
-
 }
 
 export interface TRFeature {
@@ -424,7 +407,7 @@ export interface TRFeature {
   title?: string;
   color?: string;
   description: string;
-  info: string
+  info: string;
   items: any[];
   health: number;
   totalweight?: number;
@@ -443,16 +426,12 @@ export interface TRStyle {
 }
 
 const colorMap = {
-  'red': "#c0392b",
-  'yellow': "#f1c40f",
-  'brown': "#cd6133",
-  'coal': "#2c3e50",
-  'iron': "#e74c3c",
-  'copper': "#e67e22",
-  'purple': "#9b59b6",
-  'blue': "#2980b9"
-}
-
-function tap(arg0: () => void): import("rxjs").OperatorFunction<[Object, Object, Object], unknown> {
-  throw new Error("Function not implemented.");
-}
+  red: "#c0392b",
+  yellow: "#f1c40f",
+  brown: "#cd6133",
+  coal: "#2c3e50",
+  iron: "#e74c3c",
+  copper: "#e67e22",
+  purple: "#9b59b6",
+  blue: "#2980b9",
+};
