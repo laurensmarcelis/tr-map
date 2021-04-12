@@ -385,7 +385,6 @@ export class MapComponent implements OnInit, AfterContentInit {
     activeLayer.getLayersArray().forEach(layer => {
       if(layer.getClassName() === 'map')mapLayer = layer;
     });
-    console.log(mapLayer);
     switch (type) {
       case 'x': this.x = parseInt(event.target.value);
         break;
