@@ -52,7 +52,7 @@ export class MapComponent implements OnInit, AfterContentInit {
   clusterIgnore = ["npc", "shop", "workbench", "anvil", "bank", "campfire"];
   filters: string[];
   returnMain = false;
-  fullImagePath = "./assets/tr-map.png";
+  fullImagePath = "./assets/";
   features: Feature[] = [];
   projection: Projection;
   extent: Extent = [0, 0, 2048, 2048];
@@ -98,9 +98,9 @@ export class MapComponent implements OnInit, AfterContentInit {
           );
           const _npc = friendlies.data.filter((item) => item.map == index);
 
-          map.mobs = this.createFeatures(_mobs);
-          map.interactables = this.createFeatures(_interactables);
-          map.npc = this.createFeatures(_npc);
+          map.mobs = this.createFeatures(_mobs, 1024 / map.MapRes);
+          map.interactables = this.createFeatures(_interactables, 1024 / map.MapRes);
+          map.npc = this.createFeatures(_npc, 1024 / map.MapRes);
           map.filters = [..._mobs, ..._interactables, ..._npc];
           map.features = map.interactables.concat(map.mobs, map.npc);
         });
@@ -113,17 +113,17 @@ export class MapComponent implements OnInit, AfterContentInit {
     });
   }
 
-  private createFeatures(points: TRFeature[]) {
+  private createFeatures(points: TRFeature[], resize = 1) {
     const features = [];
     points.forEach((point: TRFeature) => {
       point.pos.forEach((position) => {
         const stylePoint = {
-          pos: [position[0] + 1024, position[1]],
+          pos: [(position[0]* resize) + 1024  , (position[1]) * resize],
           name: point.icon,
           color: point.color,
         };
         const feat = new Feature({
-          geometry: new Point([position[0] + 1024, position[1]]),
+          geometry: new Point([(position[0]* resize) + 1024  , (position[1]) * resize]),
           name: point.name,
           icon: point.icon,
           title: point.title,
@@ -232,7 +232,7 @@ export class MapComponent implements OnInit, AfterContentInit {
       const mapLayer = new ImageLayer({
         className: "map",
         source: new Static({
-          url: this.fullImagePath,
+          url: this.fullImagePath + map.SceneName + '.png',
           projection: this.projection,
           imageExtent: [260, 660, 1166.66, 1177.8600000000001],
         }),
@@ -276,7 +276,6 @@ export class MapComponent implements OnInit, AfterContentInit {
 
     this.Map.on("singleclick", (evt) => {
       var coordinate = evt.coordinate;
-      console.log(coordinate.toString());
       this.Map.forEachFeatureAtPixel(evt.pixel, (f) => {
         if (f.get("features") && f.get("features").length > 0) {
           f = f.get("features")[0];
@@ -296,8 +295,6 @@ export class MapComponent implements OnInit, AfterContentInit {
 
   setFilters(filters) {
     const activeLayer = this.getActiveLayers();
-    console.log(activeLayer.getLayersArray()[1].getKeys());
-    console.log(activeLayer.getLayersArray()[1]);
     if (filters.length == 0) {
       activeLayer.getLayersArray().forEach(layer => {
         layer.setVisible(true);
@@ -382,20 +379,26 @@ export class MapComponent implements OnInit, AfterContentInit {
     return [numerator / gcd, denominator / gcd];
   }
 
-  // slide(type, event) {
-  //   switch (type) {
-  //     case 'x': this.x = parseInt(event.target.value);
-  //       break;
-  //     case 'y': this.y = parseInt(event.target.value);
-  //       break;
-  //     case 's': this.s = parseFloat(event.target.value);
-  //   }
-  //   this.mapLayer.setSource(new Static({
-  //     url: this.fullImagePath,
-  //     projection: this.projection,
-  //     imageExtent: [this.x, this.y, ((1679 * this.s) + this.x), ((959 * this.s) + this.y)],
-  //   }))
-  // }
+  slide(type, event) {
+    const activeLayer = this.getActiveLayers();
+    let mapLayer;
+    activeLayer.getLayersArray().forEach(layer => {
+      if(layer.getClassName() === 'map')mapLayer = layer;
+    });
+    console.log(mapLayer);
+    switch (type) {
+      case 'x': this.x = parseInt(event.target.value);
+        break;
+      case 'y': this.y = parseInt(event.target.value);
+        break;
+      case 's': this.s = parseFloat(event.target.value);
+    }
+    mapLayer.setSource(new Static({
+      url: mapLayer.get('source').getUrl(),
+      projection: this.projection,
+      imageExtent: [this.x, this.y, ((1679 * this.s) + this.x), ((959 * this.s) + this.y)],
+    }))
+  }
 }
 
 export interface TRFeature {

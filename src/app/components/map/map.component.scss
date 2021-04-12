@@ -7,6 +7,16 @@
     &.invis {
         visibility: hidden;
     }
+
+    &.Main {
+        background: url('/assets/dev.jpg');
+        background-size: 1%;
+    }
+
+    &.PVP {
+        background: url('/assets/lava.gif');
+        background-size: 5%;
+    }
   }
 :host {
     width: 100%;
