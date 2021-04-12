@@ -237,6 +237,11 @@ export class MapComponent implements OnInit, AfterContentInit {
     });
 
     const layers = [];
+    const imageExtends: Extent[] = [
+      [21, 309, 1679 * 1.07 + 21, 959 * 1.07 + 309],
+      [-294, 462, 2537 * 0.91 + -294, 1249 * 0.91 + 462],
+    
+  ]
     this.maps.forEach((map, index) => {
       const clusterMobSource = new Cluster({
         distance: 18,
@@ -286,7 +291,7 @@ export class MapComponent implements OnInit, AfterContentInit {
         source: new Static({
           url: this.fullImagePath + map.SceneName + ".png",
           projection: this.projection,
-          imageExtent: [21, 309, 1679 * 1.07 + 21, 959 * 1.07 + 309],
+          imageExtent: imageExtends[index],
         }),
       });
 
@@ -450,7 +455,6 @@ export class MapComponent implements OnInit, AfterContentInit {
       case "s":
         this.s = parseFloat(event.target.value);
     }
-    console.log();
     mapLayer.setSource(
       new Static({
         url: mapLayer.get("source").getUrl(),
@@ -498,7 +502,7 @@ const colorMap = {
   yellow: "#f1c40f",
   brown: "#cd6133",
   coal: "#2c3e50",
-  vertium: "##27ae60",
+  vertium: "#27ae60",
   iron: "#e74c3c",
   copper: "#e67e22",
   purple: "#9b59b6",
