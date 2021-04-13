@@ -54,6 +54,14 @@
   
 }
 
+.copyLink {
+  position: absolute;
+  top: -999999999;
+  left: -999999999;
+  z-index: -10;
+  opacity: 0;
+}
+
 .location {
   color: white;
   position: absolute;
@@ -159,4 +167,25 @@
   z-index: 9999;
   font-size: 5rem;
   transform: translate(-50%, -50%);
+}
+
+
+.in-iframe {
+  button {
+    border-radius: 4px;
+    padding: 5px 10px;
+    background-color: #FFD056;
+    border: 0;
+    outline: 0;
+    color: black;
+    text-decoration: none;
+    position:absolute;
+    top: 1rem;
+    left: 3rem;
+    z-index: 9999;
+    &:hover {
+      background-color: #fcbf24;
+      cursor: pointer;
+    }
+  }
 }

@@ -6,7 +6,7 @@ import {
   ViewChild,
   ElementRef,
   AfterContentInit,
-} from "@angular/core";
+  } from "@angular/core";
 import { View, Feature, Map, Overlay } from "ol";
 import { createStringXY } from "ol/coordinate";
 import ImageLayer from "ol/layer/Image";
@@ -31,7 +31,7 @@ import { FormControl, FormGroup } from "@angular/forms";
 import { MapApiService } from "../../service/map-api.service";
 import { BehaviorSubject, forkJoin, of } from "rxjs";
 import LayerGroup from "ol/layer/Group";
-import { ActivatedRoute, Route, Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 
 @Component({
   selector: "app-map",
@@ -62,6 +62,7 @@ export class MapComponent implements OnInit, AfterContentInit {
   popupOverlay: Overlay;
   activeFeature;
   activeMap = 0;
+  activeParams;
   form = new FormGroup({
     filters: new FormControl(),
   });
@@ -70,8 +71,8 @@ export class MapComponent implements OnInit, AfterContentInit {
   constructor(
     private mapService: MapApiService,
     private router: Router,
-    private route: ActivatedRoute
-    ) {}
+    private route: ActivatedRoute,
+  ) { }
 
   ngAfterContentInit(): void {
     this.form.valueChanges.subscribe((form) => {
@@ -81,9 +82,10 @@ export class MapComponent implements OnInit, AfterContentInit {
 
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
+      this.activeParams = params;
       if (params.map) {
         this.activeMap = params.map
-        if(this.maps) {
+        if (this.maps) {
           this.setActiveGroup(this.activeMap);
         }
       }
@@ -157,14 +159,14 @@ export class MapComponent implements OnInit, AfterContentInit {
       point.pos.forEach((position) => {
         let p = [
           (position[0] * resize) + 2048 * scalingX,
-         ( position[1] * resize) - 2048 * scalingY,
+          (position[1] * resize) - 2048 * scalingY,
         ]
-        if( revert) {
-         p = [
-          ( (2048 - 512) - position[0] * 3)  + 0 * scalingX,
-          (2048 - position[1] * 3)  - 1024 * scalingY,
-        ]
-          
+        if (revert) {
+          p = [
+            ((2048 - 512) - position[0] * 3) + 0 * scalingX,
+            (2048 - position[1] * 3) - 1024 * scalingY,
+          ]
+
         }
         const stylePoint = {
           pos: p,
@@ -254,8 +256,8 @@ export class MapComponent implements OnInit, AfterContentInit {
     const imageExtends: Extent[] = [
       [21, 309, 1679 * 1.07 + 21, 959 * 1.07 + 309],
       [-294, 462, 2537 * 0.91 + -294, 1249 * 0.91 + 462],
-    
-  ]
+
+    ]
     this.maps.forEach((map, index) => {
       const clusterMobSource = new Cluster({
         distance: 18,
@@ -354,18 +356,22 @@ export class MapComponent implements OnInit, AfterContentInit {
           f = f.get("features")[0];
         }
         if (f.get("icon") === "portal") {
-          console.log(this.activeMap);
-          const map =  this.activeMap == 0 ? 1 : 0;
-         console.log(map);
+          const map = this.activeMap == 0 ? 1 : 0;
           this.setActiveGroup(map);
         }
       });
     });
 
-    
+
     this.Map.addInteraction(this.selected_feature);
     this.loading$.next(false);
     this.setActiveGroup(this.activeMap);
+  }
+
+  copyLink(inputElement) {
+    inputElement.value = window.location.href;
+    inputElement.select();
+    document.execCommand('copy');
   }
 
   setFilters(filters) {
@@ -407,13 +413,13 @@ export class MapComponent implements OnInit, AfterContentInit {
     this.Map.getLayers().getArray()[id].setVisible(true);
 
     this.router.navigate(
-      [], 
+      [],
       {
         relativeTo: this.route,
-        queryParams: {map: id}, 
+        queryParams: { map: id },
         queryParamsHandling: 'merge', // remove to replace all query params by provided
       });
-    
+
   }
 
   selected_feature = new Select({
@@ -458,6 +464,16 @@ export class MapComponent implements OnInit, AfterContentInit {
       return { ...drop, chance };
     });
   }
+
+  inIframe() {
+    try {
+      return window.self !== window.top;
+    } catch (e) {
+      return true;
+    }
+  }
+
+
   private reduce(numerator: number, denominator: number) {
     let gcd: any = function gcd(a, b) {
       return b ? gcd(b, a % b) : a;
