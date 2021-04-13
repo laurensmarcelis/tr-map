@@ -40,14 +40,9 @@ export class FiltersComponent
     if (this.filter) {
       console.log(this.filter)
       this.filter.forEach(element => {
-        console.log(element);
         const ret = this.filters.findIndex((x) => x.name === element);
-        console.log(this.form.controls[0]);
-        console.log(ret);
         this.form.get(String(ret)).setValue(true);
       });
-      
-      
     }
   }
 
@@ -69,7 +64,7 @@ export class FiltersComponent
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
       if (params.filter) {
-        this.filter = params.filter.length ? params.filter : [params.filter];
+        this.filter = Array.isArray(params.filter) ? params.filter : [params.filter];
       }
     });
 
@@ -86,11 +81,12 @@ export class FiltersComponent
 
 
   setQueryParams(returnVal) {
-    this.router.navigate([], {
+      this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {
         filter: returnVal
       },
+      queryParamsHandling: 'merge'
     });
   }
 

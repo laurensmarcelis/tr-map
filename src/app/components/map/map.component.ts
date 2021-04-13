@@ -31,6 +31,7 @@ import { FormControl, FormGroup } from "@angular/forms";
 import { MapApiService } from "../../service/map-api.service";
 import { BehaviorSubject, forkJoin, of } from "rxjs";
 import LayerGroup from "ol/layer/Group";
+import { ActivatedRoute, Route, Router } from "@angular/router";
 
 @Component({
   selector: "app-map",
@@ -66,7 +67,11 @@ export class MapComponent implements OnInit, AfterContentInit {
   });
 
   @Output() mapReady = new EventEmitter<Map>();
-  constructor(private mapService: MapApiService) {}
+  constructor(
+    private mapService: MapApiService,
+    private router: Router,
+    private route: ActivatedRoute
+    ) {}
 
   ngAfterContentInit(): void {
     this.form.valueChanges.subscribe((form) => {
@@ -75,6 +80,15 @@ export class MapComponent implements OnInit, AfterContentInit {
   }
 
   ngOnInit() {
+    this.route.queryParams.subscribe((params) => {
+      if (params.map) {
+        this.activeMap = params.map
+        if(this.maps) {
+          this.setActiveGroup(this.activeMap);
+        }
+      }
+    });
+
     this.popupOverlay = new Overlay({
       element: this.popup.nativeElement,
       positioning: OverlayPositioning.BOTTOM_CENTER,
@@ -345,9 +359,10 @@ export class MapComponent implements OnInit, AfterContentInit {
       });
     });
 
-    this.setActiveGroup(0);
+    
     this.Map.addInteraction(this.selected_feature);
     this.loading$.next(false);
+    this.setActiveGroup(this.activeMap);
   }
 
   setFilters(filters) {
@@ -387,6 +402,15 @@ export class MapComponent implements OnInit, AfterContentInit {
         element.setVisible(false);
       });
     this.Map.getLayers().getArray()[id].setVisible(true);
+
+    this.router.navigate(
+      [], 
+      {
+        relativeTo: this.route,
+        queryParams: {map: id}, 
+        queryParamsHandling: 'merge', // remove to replace all query params by provided
+      });
+    
   }
 
   selected_feature = new Select({

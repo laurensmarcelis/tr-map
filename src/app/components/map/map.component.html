@@ -6,7 +6,7 @@
 </div> -->
 
 <div class="prev" *ngIf="returnMain">
-  <button (click)="setActiveGroup(0)">return to main map</button>
+  <a [routerLink]="['/']" [queryParams]="{ 'map': 0 }">return to main map</a>
 </div>
 <div class="loader" [hidden]="!(loading$ | async)"><img src="./assets/logo.png"/></div>
 <div class="map-container {{maps && maps[activeMap]?.LandName}}" id="map" #map [ngClass]="{'invis': (loading$ | async)}">
