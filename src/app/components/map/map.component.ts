@@ -354,7 +354,10 @@ export class MapComponent implements OnInit, AfterContentInit {
           f = f.get("features")[0];
         }
         if (f.get("icon") === "portal") {
-          this.setActiveGroup(1);
+          console.log(this.activeMap);
+          const map =  this.activeMap == 0 ? 1 : 0;
+         console.log(map);
+          this.setActiveGroup(map);
         }
       });
     });
