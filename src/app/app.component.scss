@@ -28,3 +28,17 @@ a:hover {
 
 svg {max-width: 1px;}
 
+
+form {
+  display: inline-block;
+  margin-left: 5px;
+  button {
+    background: #FFD056;
+    border: none;
+    outline: 0;
+    &:hover {
+      background: #b98c1b;
+    }
+  }
+
+}

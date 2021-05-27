@@ -7,8 +7,8 @@
 <div class="prev" *ngIf="returnMain">
   <a [routerLink]="['/']" [queryParams]="{ 'map': 0 }">return to main map</a>
 </div>
-<div class="in-iframe" *ngIf="inIframe()" >
-  <input class="copyLink" #userinput/>
+<div class="in-iframe" *ngIf="inIframe()">
+  <input class="copyLink" #userinput />
   <button (click)="copyLink(userinput)">copy link</button>
 </div>
 <div class="loader" [hidden]="!(loading$ | async)"><img src="./assets/logo.png" /></div>
@@ -20,11 +20,14 @@
         <div class="name">
           {{ activeFeature.name }}
           <ng-container *ngIf="activeFeature.title">
-            - {{ activeFeature.title }}
+          - {{ activeFeature.title }}
           </ng-container>
         </div>
         <div class="level" *ngIf="activeFeature.level">
           level: {{ activeFeature.level }}
+        </div>
+        <div  class="health" *ngIf="activeFeature.health">
+          <span>{{ activeFeature.health }}</span>
         </div>
       </div>
       <div class="body">

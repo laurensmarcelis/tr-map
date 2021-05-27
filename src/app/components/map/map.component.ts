@@ -175,16 +175,10 @@ export class MapComponent implements OnInit, AfterContentInit {
         };
         const feat = new Feature({
           geometry: new Point(p),
-          name: point.name,
-          icon: point.icon,
-          title: point.title,
-          description: point.description,
-          level: point.level,
+          ...point,
           drops: point.drops
             ? this.createDrops(point.totalweight, point.drops)
             : null,
-          color: point.color,
-          items: point.items,
         });
         feat.set("style", this.createStyle(stylePoint));
         features.push(feat);
