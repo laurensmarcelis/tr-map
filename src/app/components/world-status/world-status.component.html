@@ -1,0 +1,10 @@
+<div class="servers">
+  <div class="server" *ngFor="let server of servers$ | async">
+      <div class="server-info">
+        <img [src]="'assets/flags/' + server.worldRegion + '.svg'"> {{server.worldName}}
+      </div>
+      <div class="server-pop server-pop-{{getPop(server)}}">
+          {{server.worldOnlinePlayers}} / {{server.worldMaxPlayers}}
+      </div>
+  </div>
+</div>

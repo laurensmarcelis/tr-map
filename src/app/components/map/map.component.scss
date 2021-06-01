@@ -1,9 +1,11 @@
-@import "../../../../node_modules/ol/ol.css";
-
 .map-container {
   width: inherit;
   height: inherit;
   z-index: 1;
+
+  .ol-control.ol-zoom {
+    top: 2.5em !important;
+  }
 
   &.invis {
     visibility: hidden;
@@ -68,13 +70,15 @@ justify-content: space-between;
 .location {
   color: white;
   position: absolute;
-  top: 0;
+  bottom: 0;
   right: 0;
   text-align: center;
   min-width: 120px;
   min-height: 36px;
-  line-height: 36px;
-  background: rgba(0, 0, 0, 0.377)
+  background: rgba(0, 0, 0, 0.377);
+  .ol-mouse-position {
+    position: relative;
+  }
 }
 
 .magic {
@@ -180,6 +184,7 @@ justify-content: space-between;
   font-size: 5rem;
   transform: translate(-50%, -50%);
 }
+
 
 
 .in-iframe {

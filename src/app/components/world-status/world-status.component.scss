@@ -1,0 +1,50 @@
+:host {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #00000055;
+    z-index: 999999;
+    pointer-events: none;
+}
+
+.servers {
+    padding: 0.5rem 3rem;
+    display: flex;
+    text-align: center;
+    justify-content: space-around;
+    .server {
+        
+        color: white;
+        margin-right: 0.5rem;
+       
+        .server-info {
+            display:flex;
+            align-items: center;
+
+            img {
+                margin-right: 0.25rem;
+                width: 1.25rem;
+            }
+        }
+
+        .server-pop {
+            &-low {
+                color: #2ecc71;
+            }
+
+            &-medium {
+                color: #f1c40f;
+            }
+            
+            &-high {
+                color: #d35400;
+            }
+
+            &-full {
+                color: #c0392b;
+            }
+        }
+        
+    }
+}

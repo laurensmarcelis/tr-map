@@ -8,6 +8,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { FiltersComponent } from './components/filters/filters.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { InfotabComponent } from './components/infotab/infotab.component';
+import { WorldStatusComponent } from './components/world-status/world-status.component';
 
 @NgModule({
   declarations: [
@@ -15,6 +16,7 @@ import { InfotabComponent } from './components/infotab/infotab.component';
     MapComponent,
     FiltersComponent,
     InfotabComponent,
+    WorldStatusComponent,
     
   ],
   imports: [
