@@ -96,6 +96,7 @@ export class MapComponent implements OnInit, AfterContentInit {
       positioning: OverlayPositioning.BOTTOM_CENTER,
       offset: [0, -25],
     });
+    //this.mapService.test().subscribe(val => console.log(val));
 
     const allPoints = forkJoin([
       this.mapService.getMaps(),
@@ -158,9 +159,9 @@ export class MapComponent implements OnInit, AfterContentInit {
     points.forEach((point: TRFeature) => {
       point.pos.forEach((position) => {
         let p = [
-          (position[0] * resize) + 2048 * scalingX,
-          (position[1] * resize) - 2048 * scalingY,
-        ]
+          position[0] + 1024,
+          position[1],
+        ];
         if (revert) {
           p = [
             ((2048 - 512) - position[0] * 3) + 0 * scalingX,
@@ -248,10 +249,9 @@ export class MapComponent implements OnInit, AfterContentInit {
 
     const layers = [];
     const imageExtends: Extent[] = [
-      [21, 309, 1679 * 1.07 + 21, 959 * 1.07 + 309],
+      [0, 0, 2048 * 1 , 2048 * 1],
       [-294, 462, 2537 * 0.91 + -294, 1249 * 0.91 + 462],
-
-    ]
+    ];
     this.maps.forEach((map, index) => {
       const clusterMobSource = new Cluster({
         distance: 18,
@@ -344,7 +344,6 @@ export class MapComponent implements OnInit, AfterContentInit {
 
     this.Map.on("singleclick", (evt) => {
       var coordinate = evt.coordinate;
-      console.log(coordinate);
       this.Map.forEachFeatureAtPixel(evt.pixel, (f) => {
         if (f.get("features") && f.get("features").length > 0) {
           f = f.get("features")[0];
@@ -499,8 +498,8 @@ export class MapComponent implements OnInit, AfterContentInit {
         imageExtent: [
           this.x,
           this.y,
-          2537 * this.s + this.x,
-          1249 * this.s + this.y,
+          3840 * this.s + this.x,
+          3840 * this.s + this.y,
         ],
       })
     );

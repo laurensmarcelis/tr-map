@@ -9,7 +9,9 @@ export class MapApiService {
   constructor(
     private http: HttpClient
   ) { }
-
+    test() {
+      return this.http.get(`${this.baseUrl}/auth`)
+    }
   getNPCs() { 
     return this.http.get(`${this.baseUrl}/npc/friendly`)
   }
