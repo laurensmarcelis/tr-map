@@ -38,7 +38,6 @@ export class FiltersComponent
 
   ngAfterContentInit(): void {
     if (this.filter) {
-      console.log(this.filter)
       this.filter.forEach(element => {
         const ret = this.filters.findIndex((x) => x.name === element);
         this.form.get(String(ret)).setValue(true);

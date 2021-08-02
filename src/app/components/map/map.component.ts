@@ -105,7 +105,6 @@ export class MapComponent implements OnInit, AfterContentInit {
       positioning: OverlayPositioning.BOTTOM_CENTER,
       offset: [0, -25],
     });
-    //this.mapService.test().subscribe(val => console.log(val));
 
     const allPoints = forkJoin([
       this.mapService.getMaps(),
@@ -365,11 +364,10 @@ export class MapComponent implements OnInit, AfterContentInit {
     });
 
     this.Map.once('postrender', async (map) => {
-      console.log(this.map.nativeElement);
       setTimeout(() => {
-      html2canvas(this.map.nativeElement,{width: 500, height: 500}).then(canvas => {
-        console.log(canvas);
-        this.sneaky.nativeElement.src = canvas.toDataURL();
+      html2canvas(this.map.nativeElement,{useCORS: true, scale: .4}).then(canvas => {
+        this.sneaky.nativeElement.src = canvas.toDataURL('image/png');
+
         this.mapService.getTempImg(canvas.toDataURL('image/png')).subscribe((val:any) => {
           // this.meta.addTag( { property: 'og:image', content: 'https:' + val.url } );
         })
