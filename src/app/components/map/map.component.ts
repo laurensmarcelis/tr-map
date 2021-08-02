@@ -86,6 +86,8 @@ export class MapComponent implements OnInit, AfterContentInit {
   }
 
   ngOnInit() {
+    this.meta.addTag({ name: 'og:title', content: 'Titanreach community map project' });
+    this.meta.addTag({ name: 'og:description', content: 'This is an test about Angular Meta service' });
     this.route.queryParams.subscribe((params) => {
       this.activeParams = params;
       if (params.map) {
@@ -363,7 +365,7 @@ export class MapComponent implements OnInit, AfterContentInit {
     this.Map.once('postrender', async (map) => {
       console.log(this.map.nativeElement);
       setTimeout(() => {
-      html2canvas(this.map.nativeElement).then(canvas => {
+      html2canvas(this.map.nativeElement,{width: 500, height: 500}).then(canvas => {
         console.log(canvas);
         this.sneaky.nativeElement.src = canvas.toDataURL();
         this.mapService.getTempImg(canvas.toDataURL('image/png')).subscribe((val:any) => {
