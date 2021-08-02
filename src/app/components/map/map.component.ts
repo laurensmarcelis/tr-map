@@ -6,7 +6,7 @@ import {
   ViewChild,
   ElementRef,
   AfterContentInit,
-  } from "@angular/core";
+} from "@angular/core";
 import { View, Feature, Map, Overlay } from "ol";
 import { createStringXY } from "ol/coordinate";
 import ImageLayer from "ol/layer/Image";
@@ -32,6 +32,8 @@ import { MapApiService } from "../../service/map-api.service";
 import { BehaviorSubject, forkJoin, of } from "rxjs";
 import LayerGroup from "ol/layer/Group";
 import { ActivatedRoute, Router } from "@angular/router";
+import html2canvas from "html2canvas";
+import { Meta } from "@angular/platform-browser";
 
 @Component({
   selector: "app-map",
@@ -67,11 +69,14 @@ export class MapComponent implements OnInit, AfterContentInit {
     filters: new FormControl(),
   });
 
+  private cx: CanvasRenderingContext2D;
+
   @Output() mapReady = new EventEmitter<Map>();
   constructor(
     private mapService: MapApiService,
     private router: Router,
     private route: ActivatedRoute,
+    private meta: Meta
   ) { }
 
   ngAfterContentInit(): void {
@@ -249,7 +254,7 @@ export class MapComponent implements OnInit, AfterContentInit {
 
     const layers = [];
     const imageExtends: Extent[] = [
-      [0, 0, 2048 * 1 , 2048 * 1],
+      [0, 0, 2048 * 1, 2048 * 1],
       [-294, 462, 2537 * 0.91 + -294, 1249 * 0.91 + 462],
     ];
     this.maps.forEach((map, index) => {
@@ -355,11 +360,21 @@ export class MapComponent implements OnInit, AfterContentInit {
       });
     });
 
+    this.Map.once('postrender', async (map) => {
+      console.log(this.map.nativeElement);
+      html2canvas(this.map.nativeElement).then(canvas => {
+        console.log(canvas);
+        this.sneaky.nativeElement.src = canvas.toDataURL();
+        this.meta.updateTag({property: 'og:image', content: canvas.toDataURL('image/png')});
+      });
+    })
+
 
     this.Map.addInteraction(this.selected_feature);
     this.loading$.next(false);
     this.setActiveGroup(this.activeMap);
   }
+
 
   copyLink(inputElement) {
     inputElement.value = window.location.href;
