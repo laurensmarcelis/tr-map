@@ -86,9 +86,10 @@ export class MapComponent implements OnInit, AfterContentInit {
   }
 
   ngOnInit() {
-    this.meta.addTag({ property: 'og:type', content: 'website' });
-    this.meta.addTag({ property: 'og:title', content: 'Titanreach community map project' });
-    this.meta.addTag({ property: 'og:description', content: 'This is an test about Angular Meta service' });
+    // this.meta.addTag({ property: 'og:type', content: 'website' });
+    // this.meta.addTag({ property: 'og:title', content: 'Titanreach community map project' });
+    // this.meta.addTag({ property: 'og:description', content: 'This is an test about Angular Meta service' });
+    // this.meta.addTag({ property: 'og:url', content: this.router.url });
     this.route.queryParams.subscribe((params) => {
       this.activeParams = params;
       if (params.map) {
@@ -370,7 +371,7 @@ export class MapComponent implements OnInit, AfterContentInit {
         console.log(canvas);
         this.sneaky.nativeElement.src = canvas.toDataURL();
         this.mapService.getTempImg(canvas.toDataURL('image/png')).subscribe((val:any) => {
-          this.meta.addTag( { property: 'og:image', content: 'https:' + val.url } );
+          // this.meta.addTag( { property: 'og:image', content: 'https:' + val.url } );
         })
       })}, 1000)
     })
