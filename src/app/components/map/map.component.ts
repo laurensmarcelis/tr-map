@@ -46,7 +46,7 @@ export class MapComponent implements OnInit, AfterContentInit {
   @ViewChild("map", { static: true }) map: ElementRef;
   @ViewChild("sneaky", { static: true }) sneaky: ElementRef;
   view: View;
-  zoom = 4;
+  zoom = 0;
   x = 263;
   y = 660;
   s = 1;
@@ -246,7 +246,7 @@ export class MapComponent implements OnInit, AfterContentInit {
     this.view = new View({
       center: [683, 950],
       zoom: this.zoom,
-      maxZoom: 8,
+      maxZoom: 6,
       minZoom: 0,
       extent: this.extent,
       projection: this.projection,
@@ -362,11 +362,14 @@ export class MapComponent implements OnInit, AfterContentInit {
 
     this.Map.once('postrender', async (map) => {
       console.log(this.map.nativeElement);
+      setTimeout(() => {
       html2canvas(this.map.nativeElement).then(canvas => {
         console.log(canvas);
         this.sneaky.nativeElement.src = canvas.toDataURL();
-        this.meta.updateTag({property: 'og:image', content: canvas.toDataURL('image/png')});
-      });
+        this.mapService.getTempImg(canvas.toDataURL('image/png')).subscribe((val:any) => {
+          this.meta.addTag( { property: 'og:image', content: val.url } );
+        })
+      })}, 1000)
     })
 
 
