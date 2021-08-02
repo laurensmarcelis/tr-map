@@ -367,10 +367,6 @@ export class MapComponent implements OnInit, AfterContentInit {
       setTimeout(() => {
       html2canvas(this.map.nativeElement,{useCORS: true, scale: .4}).then(canvas => {
         this.sneaky.nativeElement.src = canvas.toDataURL('image/png');
-
-        this.mapService.getTempImg(canvas.toDataURL('image/png')).subscribe((val:any) => {
-          // this.meta.addTag( { property: 'og:image', content: 'https:' + val.url } );
-        })
       })}, 1000)
     })
 
