@@ -172,9 +172,10 @@ export class MapComponent implements OnInit, AfterContentInit {
         ];
         if (revert) {
           p = [
-            ((2048 - 512) - position[0] * 3) + 0 * scalingX,
-            (2048 - position[1] * 3) - 1024 * scalingY,
-          ]
+            (position[0]) * 4,
+            (position[1]) * 4,
+          ];
+
 
         }
         const stylePoint = {
@@ -257,8 +258,8 @@ export class MapComponent implements OnInit, AfterContentInit {
 
     const layers = [];
     const imageExtends: Extent[] = [
-      [0, 0, 2048 * 1, 2048 * 1],
-      [-294, 462, 2537 * 0.91 + -294, 1249 * 0.91 + 462],
+      [0, 0, 2048, 2048 ],
+      [0, 0, 2048 , 2048 ],
     ];
     this.maps.forEach((map, index) => {
       const clusterMobSource = new Cluster({
@@ -365,9 +366,11 @@ export class MapComponent implements OnInit, AfterContentInit {
 
     this.Map.once('postrender', async (map) => {
       setTimeout(() => {
-      html2canvas(this.map.nativeElement,{useCORS: true, scale: .4}).then(canvas => {
+      html2canvas(this.map.nativeElement).then(canvas => {
         this.sneaky.nativeElement.src = canvas.toDataURL('image/png');
-      })}, 1000)
+        this.meta.addTag({name:"static-image",content:canvas.toDataURL('image/png')});
+      })}, 500)
+      
     })
 
 
